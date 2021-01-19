@@ -1,21 +1,20 @@
 import pygame
 import sys
-
 from collections import defaultdict
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        screen = pygame.display.set_mode((800, 600))
+        screen = pygame.display.set_mode((400, 800))
         clock = pygame.time.Clock()
-        self.background_image = pygame.image.load('data/images/background/файл-затычка.txt')  # TODO выбрать картинку
+        self.background_image = pygame.image.load('data/images/background/background1.jpg')  # TODO выбрать картинку
         self.frame_rate = 60
         self.game_over = False
         self.objects = []
         pygame.init()
         pygame.font.init()
-        self.surface = pygame.display.set_mode((400, 1500))
+        self.surface = pygame.display.set_mode((400, 800))
         pygame.display.set_caption('Death or Dishonour')
         self.clock = pygame.time.Clock()
         self.keydown_handlers = defaultdict(list)
@@ -50,10 +49,9 @@ class Game:
     def run(self):
         while not self.game_over:
             self.surface.blit(self.background_image, (0, 0))
-            self.handle_events()
-            self.update()
-            self.draw()
-
+            self.handle_events()  # метод заключает в себя действия которые
+            # будут сделаны на этом ходу программы в соотв. с нажатыми кнопками
+            self.update()  # обновление objects
+            self.draw()  # отрисовка objects
             pygame.display.update()
             self.clock.tick(self.frame_rate)
-
