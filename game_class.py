@@ -5,22 +5,18 @@ from collections import defaultdict
 
 
 class Game:
-    def __init__(self,
-                 caption,
-                 width,
-                 height,
-                 back_image_filename,
-                 frame_rate):
-        self.background_image = \
-            pygame.image.load(back_image_filename)
-        self.frame_rate = frame_rate
+    def __init__(self):
+        pygame.init()
+        screen = pygame.display.set_mode((800, 600))
+        clock = pygame.time.Clock()
+        self.background_image = pygame.image.load('data/images/background/файл-затычка.txt')  # TODO выбрать картинку
+        self.frame_rate = 60
         self.game_over = False
         self.objects = []
-        pygame.mixer.pre_init(44100, 16, 2, 4096)
         pygame.init()
         pygame.font.init()
-        self.surface = pygame.display.set_mode((width, height))
-        pygame.display.set_caption(caption)
+        self.surface = pygame.display.set_mode((400, 1500))
+        pygame.display.set_caption('Death or Dishonour')
         self.clock = pygame.time.Clock()
         self.keydown_handlers = defaultdict(list)
         self.keyup_handlers = defaultdict(list)
@@ -54,10 +50,10 @@ class Game:
     def run(self):
         while not self.game_over:
             self.surface.blit(self.background_image, (0, 0))
-
             self.handle_events()
             self.update()
             self.draw()
 
             pygame.display.update()
             self.clock.tick(self.frame_rate)
+
