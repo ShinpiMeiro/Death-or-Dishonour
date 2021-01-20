@@ -26,7 +26,11 @@ class Button(Game_cycle, Tools):
 
             if click[0] == 1 and action is not None:
                 pygame.draw.rect(self.screen, self.pressed_cl, (x, y, self.width, self.height))
-                # если была нажата левая кнопка мыши
+                sound = pygame.mixer.Sound('data/sounds/click_sound.mp3')  # проигрывание звука
+                sound.play()
+                import time
+                time.sleep(1)
+                sound.stop()
 
                 while click[0] == 1:
                     # пока нажата левая кнопка мыши мы ждем, дабы не проигрывать звук кнопки множество раз

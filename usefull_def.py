@@ -1,8 +1,7 @@
-from main_connection_class import Game_cycle
 import pygame
 
 
-class Tools(Game_cycle):
+class Tools:
     # класс создан для удобного использования часто необходимых функций
 
     def print_text(self, massage, x, y, font_cl=(0, 0, 0), font_type=None, font_size=15):
