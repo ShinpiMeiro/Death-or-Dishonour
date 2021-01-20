@@ -2,14 +2,16 @@ import pygame
 import sys
 from collections import defaultdict
 from usefull_def import Tools
+from player_class import Player
 
 
 class Game_cycle(Tools):
     def __init__(self):
         pygame.init()
-        screen = pygame.display.set_mode((400, 800))
-        clock = pygame.time.Clock()
-        self.background_image = pygame.image.load('data/images/background/background1.jpg')  # TODO выбрать картинку
+        self.game_over = False
+        self.screen = pygame.display.set_mode((400, 800))
+        self.clock = pygame.time.Clock()
+        self.background_image = pygame.image.load('data/images/background1.jpg')  # TODO выбрать картинку
         self.frame_rate = 60
         self.game_over = False
         self.objects = []
