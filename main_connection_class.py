@@ -1,11 +1,9 @@
 import pygame
 import sys
 from collections import defaultdict
-from usefull_def import Tools
-from player_class import Player
 
 
-class Game_cycle(Tools):
+class Game_cycle:
     def __init__(self):
         pygame.init()
         self.game_over = False

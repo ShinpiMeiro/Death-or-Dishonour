@@ -1,6 +1,6 @@
 import pygame
 from main_connection_class import Game_cycle
-from usefull_def import Tools
+from tools_class import Tools
 import sys
 
 
@@ -26,18 +26,13 @@ class Button(Game_cycle, Tools):
 
             if click[0] == 1 and action is not None:
                 pygame.draw.rect(self.screen, self.pressed_cl, (x, y, self.width, self.height))
-                sound = pygame.mixer.Sound('data/sounds/click_sound.mp3')  # проигрывание звука
-                sound.play()
-                import time
-                time.sleep(1)
-                sound.stop()
 
                 while click[0] == 1:
                     # пока нажата левая кнопка мыши мы ждем, дабы не проигрывать звук кнопки множество раз
                     # и не вызывать нужное действие
                     pass
 
-                # play_bt_pressed_sound
+                self.play_sound('data/sounds/click_sound.mp3', 0.5)  # проигрывание звука кнопки
                 action()
                 # выполняем заданное действие
 
@@ -49,3 +44,4 @@ class Button(Game_cycle, Tools):
 
 class Menu:
     pass
+    # меню программы, а также её мини-меню

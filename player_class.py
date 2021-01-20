@@ -1,8 +1,9 @@
 import pygame
 from main_connection_class import Game_cycle
+from tools_class import Tools
 
 
-class Player:
+class Player(Game_cycle, Tools):
     def __init__(self):
         self.moving_left = False
         self.moving_right = False
