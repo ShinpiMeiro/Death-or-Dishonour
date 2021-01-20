@@ -1,5 +1,5 @@
 import pygame
-from main_connection_class import Game_cycle
+from data.main_connection_class import Game_cycle
 
 
 class Tools(Game_cycle):

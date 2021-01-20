@@ -1,6 +1,6 @@
 import pygame
-from main_connection_class import Game_cycle
-from tools_class import Tools
+from data.main_connection_class import Game_cycle
+from data.tools_class import Tools
 
 
 class Player(Game_cycle, Tools):
