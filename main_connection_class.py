@@ -4,7 +4,7 @@ from collections import defaultdict
 from usefull_def import Tools
 
 
-class Game_cycle:
+class Game_cycle(Tools):
     def __init__(self):
         pygame.init()
         screen = pygame.display.set_mode((400, 800))
