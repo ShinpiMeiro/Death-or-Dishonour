@@ -7,52 +7,33 @@ class Game_cycle:
     def __init__(self):
         pygame.init()
         self.game_over = False
-        self.screen = pygame.display.set_mode((400, 800))
-        self.clock = pygame.time.Clock()
-        self.background_image = pygame.image.load('data/images/background1.jpg')  # TODO выбрать картинку
-        self.frame_rate = 60
-        self.game_over = False
-        self.objects = []
-        pygame.init()
-        pygame.font.init()
-        self.surface = pygame.display.set_mode((400, 800))
+        self.screen = pygame.display.set_mode((1280, 800))
+
         pygame.display.set_caption('Death or Dishonour')
-        self.clock = pygame.time.Clock()
-        self.keydown_handlers = defaultdict(list)
-        self.keyup_handlers = defaultdict(list)
-        self.mouse_handlers = []
+        pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
 
-    def update(self):
-        for o in self.objects:
-            o.update()
+        x_pos = 0
+        v = 20  # пикселей в секунду
+        clock = pygame.time.Clock()
 
-    def draw(self):
-        for o in self.objects:
-            o.draw(self.surface)
+        while not self.game_over:  # пока пользователь не закрыл окно или не совершил необходимиое действие в игре
+            # цикл продолжается
 
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                for handler in self.keydown_handlers[event.key]:
-                    handler(event.key)
-            elif event.type == pygame.KEYUP:
-                for handler in self.keydown_handlers[event.key]:
-                    handler(event.key)
-            elif event.type in (pygame.MOUSEBUTTONDOWN,
-                                pygame.MOUSEBUTTONUP,
-                                pygame.MOUSEMOTION):
-                for handler in self.mouse_handlers:
-                    handler(event.type, event.pos)
+            for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные другими классами
+                # вроде menu или player
+                if event.type == pygame.QUIT:  # если пользователь закроет программу, игра завершится
+                    self.game_over = True
 
-    def run(self):
-        while not self.game_over:
-            self.surface.blit(self.background_image, (0, 0))
-            self.handle_events()  # метод заключает в себя действия которые
-            # будут сделаны на этом ходу программы в соотв. с нажатыми кнопками
-            self.update()  # обновление objects
-            self.draw()  # отрисовка objects
-            pygame.display.update()
-            self.clock.tick(self.frame_rate)
+            self.screen.fill((255, 255, 255))  # заливка экрана
+
+            bg = pygame.image.load("resources/images/test_background_2.png")
+            self.screen.blit(bg, (0, 0))  # установка фона
+
+            pygame.draw.circle(self.screen, (255, 0, 0), (int(x_pos), 200), 20)
+            x_pos += v * clock.tick() / 1000  # v * t в секундах
+            pygame.display.flip()
+
+        pygame.quit()
+
+
+Game_cycle()

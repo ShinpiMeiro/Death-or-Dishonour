@@ -32,7 +32,7 @@ class Button(Game_cycle, Tools):
                     # и не вызывать нужное действие
                     pass
 
-                self.play_sound('data/sounds/click_sound.mp3', 0.5)  # проигрывание звука кнопки
+                self.play_sound('resources/sounds/click_sound.mp3', 0.5)  # проигрывание звука кнопки
                 action()
                 # выполняем заданное действие
 
