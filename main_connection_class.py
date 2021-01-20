@@ -1,9 +1,10 @@
 import pygame
 import sys
 from collections import defaultdict
+from usefull_def import Tools
 
 
-class Game:
+class Game_cycle(Tools):
     def __init__(self):
         pygame.init()
         screen = pygame.display.set_mode((400, 800))

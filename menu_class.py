@@ -1,15 +1,10 @@
 import pygame
+from main_connection_class import Game_cycle
+from usefull_def import Tools
 import sys
 
 
-def print_text(massage, x, y, font_cl=(0, 0, 0), font_type=None, font_size=15):
-    font = pygame.font.Font(font_type, font_size)
-    text = font.render(massage, True, font_cl)
-    display.blit(text, (x, y))
-    # функция по заданным параметрам превращает нужный текст в картинку, позволяя pygame её отобразить на плоскости
-
-
-class Button:
+class Button(Game_cycle, Tools):
     # класс позволяет создавать кнопки с нужными параметрами
     def __init__(self, width, height, inactive_cl, active_cl, pressed_cl):
         self.width = width
@@ -22,15 +17,15 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         # создаем переменные проверки позиции курсора и нажатия кнопок мыши
-        print_text(text, x + 4, y + 5)
+        self.print_text(text, x + 4, y + 5)
         # отрисовываем на кнопке текст
 
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
-            pygame.draw.rect(display, self.active_cl, (x, y, self.width, self.height))
+            pygame.draw.rect(self.screen, self.active_cl, (x, y, self.width, self.height))
             # если курсор находится в области кнопки
 
             if click[0] == 1 and action is not None:
-                pygame.draw.rect(display, self.pressed_cl, (x, y, self.width, self.height))
+                pygame.draw.rect(self.screen, self.pressed_cl, (x, y, self.width, self.height))
                 # если была нажата левая кнопка мыши
 
                 while click[0] == 1:
@@ -43,7 +38,7 @@ class Button:
                 # выполняем заданное действие
 
         else:
-            pygame.draw.rect(display, self.inactive_cl, (x, y, self.width, self.height))
+            pygame.draw.rect(self.screen, self.inactive_cl, (x, y, self.width, self.height))
         # при любом условии, мы отрисовываем кнопку с нужным текстом. однако всегда разного цвета
         # в зависимости от условия
 
