@@ -43,7 +43,7 @@ class Game_cycle:
                     self.game_over = True
             self.screen.fill((0, 0, 0))
 
-            self.level_backgrounds(pygame.image.load('resources/level_pictures/first_level_bckgd.jpg'), 1120)
+            self.level_backgrounds(pygame.image.load('resources/level_pictures/first_level_bckgd.jpg'), 560)
 
             if event.type == pygame.MOUSEMOTION:
                 self.screen.blit(pygame.image.load('resources/sprites/test_player.png'), event.pos)
