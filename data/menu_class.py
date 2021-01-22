@@ -42,6 +42,11 @@ class Button(Game_cycle, Tools):
         # в зависимости от условия
 
 
-class Menu:
-    pass
-    # меню программы, а также её мини-меню
+class Menu(Game_cycle, Tools):
+    def __init__(self):
+        pass
+
+    def settings(self, max_fps=120, language='russian', sceen_size='800*600', show_fps=False):  # будущие настройки
+        # игры cо следующими параметрами
+        pass
+

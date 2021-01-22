@@ -1,0 +1,1 @@
+fadeout(self.weight, self.height, self.screen) # def game_screen in 'if event.type == pygame.QUIT'

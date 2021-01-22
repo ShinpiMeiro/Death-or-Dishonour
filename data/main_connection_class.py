@@ -17,40 +17,42 @@ class Game_cycle:
 
     def __init__(self):
         pygame.init()
-        W = 432
-        H = 720
+        self.weight = 600
+        self.height = 800
         self.game_over = False
-        self.screen = pygame.display.set_mode((W, H))
+        self.FPS = 120
+        self.level_bckgd_pos = -4000
+        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode((self.weight, self.height))
 
         pygame.display.set_caption('Death or Dishonour')
         pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
-        bkgd = pygame.image.load('resources/images/background_3.jpeg').convert()
-        bkgd_y = 0
-        x_pos = 0
-        v = 20  # пикселей в секунду
-        FPS = 120
-        clock = pygame.time.Clock()
 
+    def level_backgrounds(self, bckgd, speed):  # функция отрисовывающая двигающейся задний фон в уровнях
+        self.level_bckgd_pos += speed / self.FPS
+        if self.level_bckgd_pos >= 0:
+            self.level_bckgd_pos = -4000
+        self.screen.blit(bckgd, (0, self.level_bckgd_pos))
+
+    def game_screen(self):
         while not self.game_over:  # пока пользователь не закрыл окно или не совершил необходимиое действие в игре
             # цикл продолжается
             for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные другими классами
                 # вроде menu или player
                 if event.type == pygame.QUIT:  # если пользователь закроет программу, игра завершится
-                    fadeout(W, H, self.screen)
                     self.game_over = True
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    pass
+            self.screen.fill((0, 0, 0))
 
-            rel_y = bkgd_y % bkgd.get_rect().height  # вспомогательная переменная
-            self.screen.blit(bkgd, (0, rel_y - bkgd.get_rect().height))  # установка движущегося фона
-            if rel_y < H:
-                self.screen.blit(bkgd, (0, rel_y))
-            bkgd_y += 1
-            pygame.display.update()
+            self.level_backgrounds(pygame.image.load('resources/level_pictures/first_level_bckgd.jpg'), 1120)
+
+            if event.type == pygame.MOUSEMOTION:
+                self.screen.blit(pygame.image.load('resources/sprites/test_player.png'), event.pos)
+
             pygame.display.flip()
-            clock.tick(FPS)
+            self.clock.tick(self.FPS)
 
         pygame.quit()
 
 
-Game_cycle()
+Game = Game_cycle()
+Game.game_screen()
