@@ -1,6 +1,7 @@
 import pygame
 import sys
 from collections import defaultdict
+from data.tools_class import Tools
 
 
 def fadeout(W, H, screen):
@@ -13,18 +14,19 @@ def fadeout(W, H, screen):
         pygame.time.delay(50)
 
 
-class Game_cycle:
+class Game_cycle(Tools):
 
     def __init__(self):
         pygame.init()
         self.weight = 600
         self.height = 800
         self.game_over = False
-        self.FPS = 120
+        self.FPS = 100
         self.level_bckgd_pos = -4000
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((self.weight, self.height))
 
+        pygame.mouse.set_visible(False)
         pygame.display.set_caption('Death or Dishonour')
         pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
 
@@ -35,6 +37,9 @@ class Game_cycle:
         self.screen.blit(bckgd, (0, self.level_bckgd_pos))
 
     def game_screen(self):
+
+        self.play_sound('resources/sounds/music/wagner_main_theme.mp3', 0.2)
+
         while not self.game_over:  # пока пользователь не закрыл окно или не совершил необходимиое действие в игре
             # цикл продолжается
             for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные другими классами
@@ -46,7 +51,9 @@ class Game_cycle:
             self.level_backgrounds(pygame.image.load('resources/level_pictures/first_level_bckgd.jpg'), 560)
 
             if event.type == pygame.MOUSEMOTION:
-                self.screen.blit(pygame.image.load('resources/sprites/test_player.png'), event.pos)
+                print(event.pos)
+                self.screen.blit(pygame.image.load('resources/sprites/test_player.png'),
+                                 (event.pos[0] - 64, event.pos[1] - 52))
 
             pygame.display.flip()
             self.clock.tick(self.FPS)

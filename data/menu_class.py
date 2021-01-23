@@ -32,7 +32,7 @@ class Button(Game_cycle, Tools):
                     # и не вызывать нужное действие
                     pass
 
-                self.play_sound('resources/sounds/click_sound.mp3', 0.5)  # проигрывание звука кнопки
+                self.play_sound('resources/sounds/click_sound.mp3')  # проигрывание звука кнопки
                 action()
                 # выполняем заданное действие
 
@@ -46,7 +46,7 @@ class Menu(Game_cycle, Tools):
     def __init__(self):
         pass
 
-    def settings(self, max_fps=120, language='russian', sceen_size='800*600', show_fps=False):  # будущие настройки
+    def settings(self, max_fps=120, language='russian', sceen_size='800*600', show_fps=False, sounds_volume=0.5,
+                 music_volume=0.2):  # будущие настройки
         # игры cо следующими параметрами
         pass
-
