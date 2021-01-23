@@ -1,1 +1,6 @@
 fadeout(self.weight, self.height, self.screen) # def game_screen in 'if event.type == pygame.QUIT'
+
+    def print_text(self, massage, x, y, font_cl=(0, 0, 0), font_type=None, font_size=15):
+        font = pygame.font.Font(font_type, font_size)
+        text = font.render(massage, True, font_cl)
+        return self.screen.blit(text, (x, y))

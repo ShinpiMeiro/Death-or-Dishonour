@@ -1,6 +1,5 @@
 import pygame
-from data.main_connection_class import Game_cycle
-from data.tools_class import Tools
+
 import sys
 
 
