@@ -1,5 +1,6 @@
 import pygame
 from data.player_class import Player
+from data.explosion_class import Explosion
 
 
 def fadeout(W, H, scr):
@@ -31,6 +32,7 @@ speed = 2
 def game_screen():
     pygame.init()
     p = Player()
+    e = Explosion()
     level_bckgd_pos = -4000
     current_player_sprite = 'stay'
     game_over = False
@@ -53,6 +55,7 @@ def game_screen():
                 current_player_sprite = 'right'
                 p.moving_left = False
                 p.moving_right = True
+                screen.blit(e.ex33, (p.x, p.y))
 
             if event.type == pygame.KEYUP and (event.key == pygame.K_a or event.key == pygame.K_LEFT):
                 current_player_sprite = 'stay'
@@ -87,6 +90,7 @@ def game_screen():
             sprite = p.anim_stay()
             screen.blit(sprite, (p.x, p.y))
             p.stay_1 = not p.stay_1
+        screen.blit(e.boom(), (300, 200))
         pygame.display.flip()
         clock.tick(FPS)
 
