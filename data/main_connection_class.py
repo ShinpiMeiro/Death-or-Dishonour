@@ -111,11 +111,9 @@ def game_screen():
                 o.shooting = True
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                current_sprite = None
                 o.shooting = False
 
             if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                current_sprite = None
                 o.shooting = False
 
             if event.type == pygame.QUIT:  # если пользователь закроет программу, игра завершится
@@ -128,7 +126,7 @@ def game_screen():
         screen.blit(current_level_background, (0, level_bckgd_pos))
 
         p.update(FPS)  # передвижение игрока
-        o.bullets(FPS)
+        o.bullets_update(FPS)
 
         if current_player_sprite == 'left':  # смена текстур игрока
             sprite = p.anim_left()
@@ -145,9 +143,9 @@ def game_screen():
 
         if current_sprite == 'shot':
             sprite = pygame.transform.scale(pygame.image.load('resources/sprites/bullet.png'), (20, 33))
-            screen.blit(sprite, (p.x + 21, p.y - 25))
+            screen.blit(sprite, (o.first_bullet_pos[0], o.first_bullet_pos[1]))
             sprite = pygame.transform.scale(pygame.image.load('resources/sprites/bullet.png'), (20, 33))
-            screen.blit(sprite, (p.x + 76, p.y - 25))
+            screen.blit(sprite, (o.second_bullet_pos[0], o.second_bullet_pos[1]))
 
         # screen.blit(e.boom(), (300, 200))
         pygame.display.flip()
