@@ -3,7 +3,7 @@ import pygame
 import sys
 
 
-class Button(Game_cycle, Tools):
+class Button:
     # класс позволяет создавать кнопки с нужными параметрами
     def __init__(self, width, height, inactive_cl, active_cl, pressed_cl):
         self.width = width
@@ -41,7 +41,7 @@ class Button(Game_cycle, Tools):
         # в зависимости от условия
 
 
-class Menu(Game_cycle, Tools):
+class Menu:
     def __init__(self):
         pass
 

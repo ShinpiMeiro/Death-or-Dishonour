@@ -27,9 +27,12 @@ class Player(pygame.sprite.Sprite):
         self.y = 650
         self.speed = 3
         self.xvel = 0
+        self.yvel = 0
 
         self.moving_left = False
         self.moving_right = False
+        self.moving_up = False
+        self.moving_down = False
         self.health_count = 3
         self.status = True
         self.body = self.stay1
@@ -55,7 +58,13 @@ class Player(pygame.sprite.Sprite):
             self.body = self.right2
         return self.body
 
-    def update(self):
+    def update(self, FPS):
+        if self.moving_up:
+            self.yvel = -self.speed
+
+        if self.moving_down:
+            self.yvel = self.speed
+
         if self.moving_left:
             self.xvel = -self.speed
 
@@ -65,4 +74,8 @@ class Player(pygame.sprite.Sprite):
         if not(self.moving_left or self.moving_right):
             self.xvel = 0
 
+        if not(self.moving_up or self.moving_down):
+            self.yvel = 0
+
         self.x += self.xvel
+        self.y += self.yvel
