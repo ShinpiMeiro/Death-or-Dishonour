@@ -1,7 +1,7 @@
 import pygame
 from data.player_class import Player
 from data.explosion_class import Explosion
-from data.objects_class import Objects
+from data.objects_class import Bullets
 
 
 def fadeout(W, H, scr):
@@ -40,7 +40,9 @@ def game_screen():
     pygame.init()
     p = Player()
     e = Explosion()
-    o = Objects()
+    o = Bullets()
+    bullets_i = 0
+    bullets_list = []
     level_bckgd_pos = -4000
     current_player_sprite = 'stay'
     game_over = False
@@ -104,17 +106,21 @@ def game_screen():
                 current_sprite = 'shot'
                 o.shot((p.x + 21, p.y - 25), (p.x + 76, p.y - 25))
                 o.shooting = True
+                bullets_list.append(bullets_i)
+                bullets_i += 1
 
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 current_sprite = 'shot'
                 o.shot((p.x + 21, p.y - 25), (p.x + 76, p.y - 25))
                 o.shooting = True
+                bullets_list.append(bullets_i)
+                bullets_i += 1
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                o.shooting = False
+                pass
 
             if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                o.shooting = False
+                pass
 
             if event.type == pygame.QUIT:  # если пользователь закроет программу, игра завершится
                 game_over = True

@@ -8,7 +8,7 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
     pygame.time.wait(wait_t)
 
 
-class Objects(pygame.sprite.Sprite):
+class Bullets(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.first_bullet_pos = [0, 0]
