@@ -37,9 +37,11 @@ speed = 2
 
 
 def game_screen():
+    menu = True
     pygame.init()
     p = Player()
     e = Explosion()
+    enemies = pygame.sprite.Group()
     o = Bullets()
     bullets_i = 0
     bullets_list = []
@@ -49,7 +51,6 @@ def game_screen():
     clock = pygame.time.Clock()
     current_sprite = None
     pygame.mouse.set_visible(False)
-    click = pygame.mouse.get_pressed()
     pygame.display.set_caption('Death or Dishonour')  # создание заголовка окна
     pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))  # создание иконки приложения
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
@@ -82,13 +83,11 @@ def game_screen():
 
             if event.type == pygame.KEYDOWN and (
                     event.key == pygame.K_w or event.key == pygame.K_UP) and not p.moving_down:
-                current_player_sprite = 'stay'
                 p.moving_down = False
                 p.moving_up = True
 
             elif event.type == pygame.KEYDOWN and (
                     event.key == pygame.K_s or event.key == pygame.K_DOWN) and not p.moving_up:
-                current_player_sprite = 'stay'
                 p.moving_up = False
                 p.moving_down = True
 
@@ -108,6 +107,7 @@ def game_screen():
                 o.shooting = True
                 bullets_list.append(bullets_i)
                 bullets_i += 1
+                menu = False
 
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 current_sprite = 'shot'
