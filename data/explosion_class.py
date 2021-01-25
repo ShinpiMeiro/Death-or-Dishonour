@@ -139,6 +139,6 @@ class Explosion(pygame.sprite.Sprite):
 
     def boom(self):
         if self.booms == 64:
-            self.booms = -1
+            self.kill()
         self.booms += 1
         return self.ex_all[self.booms]

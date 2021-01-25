@@ -36,12 +36,14 @@ class Player(pygame.sprite.Sprite):
         self.health_count = 3
         self.status = True
         self.body = self.stay1
+        self.mask = pygame.mask.from_surface(self.stay1)
 
     def anim_stay(self):
         if self.stay_1:
             self.body = self.stay1
         else:
             self.body = self.stay2
+        self.mask = pygame.mask.from_surface(self.body)
         return self.body
 
     def anim_left(self):
@@ -49,6 +51,7 @@ class Player(pygame.sprite.Sprite):
             self.body = self.left1
         else:
             self.body = self.left2
+        self.mask = pygame.mask.from_surface(self.body)
         return self.body
 
     def anim_right(self):
@@ -56,6 +59,7 @@ class Player(pygame.sprite.Sprite):
             self.body = self.right1
         else:
             self.body = self.right2
+        self.mask = pygame.mask.from_surface(self.body)
         return self.body
 
     def update(self, FPS):
