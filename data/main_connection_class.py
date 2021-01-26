@@ -44,14 +44,11 @@ def game_screen():
     enemies = pygame.sprite.Group()
     p = Player()
     booms = []
-    b = Bullets()
-    bullets_i = 0
-    bullets_list = []
-    level_bckgd_pos = -4000
+    bullets_count = pygame.sprite.Group()
+    level_bckgd_pos = -4800
     current_player_sprite = 'stay'
     game_over = False
     clock = pygame.time.Clock()
-    current_sprite = None
     pygame.mouse.set_visible(False)
     # заголовок окна
     pygame.display.set_caption('Death or Dishonour')
@@ -60,7 +57,7 @@ def game_screen():
     # задний фон
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
     # фоновая музыка
-    play_sound('resources/sounds/music/wagner_main_theme.mp3', 0)
+    play_sound('resources/sounds/music/wagner_main_theme.mp3', 0.2)
 
     while not game_over:  # пока пользователь не закрыл окно или не совершил необходимиое действие в игре
         # цикл продолжается
@@ -106,21 +103,19 @@ def game_screen():
                 current_player_sprite = 'stay'
                 p.moving_down = False
                 p.moving_up = False
+
             # просчет выстрела
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                current_sprite = 'shot'
-                b.shot((p.x + 21, p.y - 25), (p.x + 76, p.y - 25))
-                b.shooting = True
-                bullets_list.append(bullets_i)
-                bullets_i += 1
-                menu = False
+                Bullets(bullets_count).shot((p.x + 21, p.y - 25))
+                Bullets(bullets_count).shot((p.x + 76, p.y - 25))
+                Bullets.shooting = True
+
             # просчет выстрела, но для пробела
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                current_sprite = 'shot'
-                b.shot((p.x + 21, p.y - 25), (p.x + 76, p.y - 25))
-                b.shooting = True
-                bullets_list.append(bullets_i)
-                bullets_i += 1
+                Bullets(bullets_count).shot((p.x + 21, p.y - 25))
+                Bullets(bullets_count).shot((p.x + 76, p.y - 25))
+                Bullets.shooting = True
+
             # нереализованная функция
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 pass
@@ -136,9 +131,9 @@ def game_screen():
         # на всякий случай делаем белую заливку
         screen.fill((0, 0, 0))
         # передвижение заднего фона
-        level_bckgd_pos += speed
+        level_bckgd_pos += 1
         if level_bckgd_pos >= 0:
-            level_bckgd_pos = -4000
+            level_bckgd_pos = -4800
         screen.blit(current_level_background, (0, level_bckgd_pos))
         # передвижение игрока
         p.update(FPS)
@@ -147,7 +142,8 @@ def game_screen():
         # отрисовка врагов
         enemies.draw(screen)
         # передвижение пули
-        b.bullets_update(FPS)
+        bullets_count.update()
+        bullets_count.draw(screen)
         # смена текстур игрока
         if current_player_sprite == 'left':
             sprite = p.anim_left()
@@ -161,12 +157,7 @@ def game_screen():
             sprite = p.anim_stay()
             screen.blit(sprite, (p.x, p.y))
             p.stay_1 = not p.stay_1
-        # выстрел
-        if current_sprite == 'shot':
-            sprite = pygame.transform.scale(pygame.image.load('resources/sprites/bullet.png'), (20, 33))
-            screen.blit(sprite, (b.first_bullet_pos[0], b.first_bullet_pos[1]))
-            sprite = pygame.transform.scale(pygame.image.load('resources/sprites/bullet.png'), (20, 33))
-            screen.blit(sprite, (b.second_bullet_pos[0], b.second_bullet_pos[1]))
+
         # проверка коллизии врага и игрока
         for i in enemies:
             offset = (p.x - i.rect.x, p.y - i.rect.y)

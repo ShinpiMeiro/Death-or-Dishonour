@@ -9,8 +9,6 @@ class Enemy(pygame.sprite.Sprite):  # TODO если что тут такое с�
         self.stay1 = pygame.image.load('resources/sprites/enemy_1.png')
         self.image = self.stay1
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.xvel = random.randint(-1, 1)
         self.yvel = 3
         self.movement = True

@@ -9,19 +9,24 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
 
 
 class Bullets(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.first_bullet_pos = [0, 0]
-        self.second_bullet_pos = [0, 0]
+    def __init__(self, group):
+        super().__init__(group)
+        self.add(group)
+        self.image = pygame.transform.scale(pygame.image.load('resources/sprites/bullet.png'), (20, 33))
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = 0, 0
         self.bullet_speed = 8
         self.shooting = False
 
-    def shot(self, f_bullet_pos, s_bullet_pos, time=0):
-        self.first_bullet_pos[0], self.first_bullet_pos[1] = f_bullet_pos[0], f_bullet_pos[1]
-        self.second_bullet_pos[0], self.second_bullet_pos[1] = s_bullet_pos[0], s_bullet_pos[1]
+    def shot(self, bullet_pos):
+        self.rect.x, self.rect.y = bullet_pos[0], bullet_pos[1]
         play_sound('resources/sounds/shot_sound.mp3', 0.1)  # проигрывание звука
-        pygame.time.wait(time)
 
-    def bullets_update(self, FPS):
-        self.first_bullet_pos[1] -= self.bullet_speed
-        self.second_bullet_pos[1] -= self.bullet_speed
+    def update(self):
+        if self.rect.y < -100 or self.rect.y > 700:
+            self.kill()
+
+        if self.rect.y < 800:
+            self.rect.y -= self.bullet_speed
+        else:
+            self.kill()
