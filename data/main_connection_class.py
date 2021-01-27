@@ -1,4 +1,5 @@
 import pygame
+import sys
 from data.player_class import Player
 from data.explosion_class import Explosion
 from data.objects_class import Bullets
@@ -32,42 +33,99 @@ pygame.init()
 width = 600
 height = 800
 FPS = 100
-
+menu = True
 screen = pygame.display.set_mode((width, height))
 speed = 2
+font = pygame.font.SysFont(None, 20)
+clock = pygame.time.Clock()
+# заголовок окна
+pygame.display.set_caption('Death or Dishonour')
+# иконка приложения
+pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
+track_count = 0
+battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
+                 'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
+                 'resources/sounds/music/battle_music_5.mp3', 'resources/sounds/music/battle_music_6.mp3']
+ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
+ingame_music_sound = 0.2
+ingame_music.set_volume(ingame_music_sound)
+ingame_music.play()
+
+
+def draw_text(text, font, color, surface, x, y):
+    text_object = font.render(text, 1, color)
+    textrect = text_object.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(text_object, textrect)
+
+
+def main_menu():
+    while True:
+        mx, my = pygame.mouse.get_pos()
+        screen.fill((0, 0, 0))
+        draw_text('Death or Dishonour', font, (255, 255, 255), screen, 20, 20)
+        button_play = pygame.Rect(50, 100, 200, 50)
+        button_options = pygame.Rect(50, 200, 200, 50)
+        button_exit = pygame.Rect(50, 300, 200, 50)
+        if button_play.collidepoint((mx, my)):
+            if click:
+                game_screen()
+        if button_options.collidepoint((mx, my)):
+            if click:
+                options_menu()
+        if button_exit.collidepoint((mx, my)):
+            if click:
+                pygame.quit()
+                sys.exit()
+        pygame.draw.rect(screen, (0, 0, 255), button_play)
+        pygame.draw.rect(screen, (0, 0, 255), button_options)
+        pygame.draw.rect(screen, (0, 0, 255), button_exit)
+
+        click = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+        pygame.display.update()
+        clock.tick(10)
+
+
+def options_menu():
+    running = True
+    while running:
+        screen.fill((0, 0, 0))
+        draw_text('Options', font, (255, 255, 255), screen, 20, 20)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+        pygame.display.update()
+        clock.tick(10)
 
 
 def game_screen():
-    track_count = 0
-    battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
-                     'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
-                     'resources/sounds/music/battle_music_5.mp3', 'resources/sounds/music/battle_music_6.mp3']
-    ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
-    ingame_music_sound = 0.2
-    ingame_music.set_volume(ingame_music_sound)
-    ingame_music.play()
+    running = True
     pygame.time.set_timer(pygame.USEREVENT, 1000)
-    menu = True
-    pygame.init()
     enemies = pygame.sprite.Group()
     p = Player()
     booms = []
     bullets_count = pygame.sprite.Group()
     level_bckgd_pos = -16000
     current_player_sprite = 'stay'
-    game_over = False
-    clock = pygame.time.Clock()
-    pygame.mouse.set_visible(False)
-    # заголовок окна
-    pygame.display.set_caption('Death or Dishonour')
-    # иконка приложения
-    pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
-    # задний фон
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
-    # фоновая музыка
-
-    while not game_over:  # пока пользователь не закрыл окно или не совершил необходимиое действие в игре
-        # цикл продолжается
+    while running:
+        #  ---------------------------------------- управление
         for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные другими классами
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_EQUALS:
@@ -146,21 +204,15 @@ def game_screen():
                 Bullets(bullets_count).shot((p.x + 76, p.y - 25))
                 Bullets.shooting = True
 
-            # нереализованная функция
-            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                pass
-            # нереализованная функция
-            if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                pass
-
             # спавн врагов
             if event.type == pygame.USEREVENT:
-                Enemy(200, -100, enemies)
+                Enemy(enemies)
             # если пользователь закроет программу, игра завершится
             if event.type == pygame.QUIT:
-                game_over = True
-        # на всякий случай делаем белую заливку
-        screen.fill((0, 0, 0))
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
         # передвижение заднего фона
         level_bckgd_pos += 2
         if level_bckgd_pos >= 0:
@@ -213,15 +265,11 @@ def game_screen():
             except IndexError:
                 booms.remove(i)
 
-        # обновление экрана
         pygame.display.flip()
-        # фпс таймер
         clock.tick(FPS)
-
-    pygame.quit()
 
 
 if __name__ == '__main__':
-    game_screen()
+    main_menu()
 
     pygame.quit()
