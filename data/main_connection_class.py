@@ -81,10 +81,14 @@ def game_screen():
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_KP_PLUS:
                 ingame_music_sound += 0.05
+                if ingame_music_sound >= 1.5:
+                    ingame_music_sound = 1.4
                 ingame_music.set_volume(ingame_music_sound)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_KP_MINUS:
                 ingame_music_sound -= 0.05
+                if ingame_music_sound < 0:
+                    ingame_music_sound = 0
                 ingame_music.set_volume(ingame_music_sound)
 
             if event.type == pygame.KEYDOWN and (
