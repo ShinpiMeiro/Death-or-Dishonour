@@ -38,6 +38,14 @@ speed = 2
 
 
 def game_screen():
+    track_count = 0
+    battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
+                     'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
+                     'resources/sounds/music/battle_music_5.mp3', 'resources/sounds/music/battle_music_6.mp3']
+    ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
+    ingame_music_sound = 0.2
+    ingame_music.set_volume(ingame_music_sound)
+    ingame_music.play()
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     menu = True
     pygame.init()
@@ -45,7 +53,7 @@ def game_screen():
     p = Player()
     booms = []
     bullets_count = pygame.sprite.Group()
-    level_bckgd_pos = -4800
+    level_bckgd_pos = -16000
     current_player_sprite = 'stay'
     game_over = False
     clock = pygame.time.Clock()
@@ -57,11 +65,28 @@ def game_screen():
     # задний фон
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
     # фоновая музыка
-    play_sound('resources/sounds/music/wagner_main_theme.mp3', 0.2)
 
     while not game_over:  # пока пользователь не закрыл окно или не совершил необходимиое действие в игре
         # цикл продолжается
         for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные другими классами
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_EQUALS:
+                ingame_music.stop()
+                track_count += 1
+                if track_count > 5:
+                    track_count = 0
+                ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
+                ingame_music.set_volume(ingame_music_sound)
+                ingame_music.play()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_KP_PLUS:
+                ingame_music_sound += 0.05
+                ingame_music.set_volume(ingame_music_sound)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_KP_MINUS:
+                ingame_music_sound -= 0.05
+                ingame_music.set_volume(ingame_music_sound)
+
             if event.type == pygame.KEYDOWN and (
                     event.key == pygame.K_a or event.key == pygame.K_LEFT) and not p.moving_right:
                 current_player_sprite = 'left'
@@ -112,6 +137,7 @@ def game_screen():
 
             # просчет выстрела, но для пробела
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                print('+')
                 Bullets(bullets_count).shot((p.x + 21, p.y - 25))
                 Bullets(bullets_count).shot((p.x + 76, p.y - 25))
                 Bullets.shooting = True
@@ -122,7 +148,8 @@ def game_screen():
             # нереализованная функция
             if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
                 pass
-            # плохо реализованный спавн врагов
+
+            # спавн врагов
             if event.type == pygame.USEREVENT:
                 Enemy(200, -100, enemies)
             # если пользователь закроет программу, игра завершится
@@ -131,9 +158,9 @@ def game_screen():
         # на всякий случай делаем белую заливку
         screen.fill((0, 0, 0))
         # передвижение заднего фона
-        level_bckgd_pos += 1
+        level_bckgd_pos += 2
         if level_bckgd_pos >= 0:
-            level_bckgd_pos = -4800
+            screen.fill((0, 0, 0))
         screen.blit(current_level_background, (0, level_bckgd_pos))
         # передвижение игрока
         p.update(FPS)
@@ -166,6 +193,12 @@ def game_screen():
                 booms.append((i.rect.x, i.rect.y))
                 boom = Explosion()
                 i.kill()
+            for j in bullets_count:
+                if i.rect.x < j.rect.x < i.rect.x + 20 and i.rect.y < j.rect.y < i.rect.y + 33:
+                    booms.append((i.rect.x, i.rect.y))
+                    boom = Explosion()
+                    i.kill()
+                    j.kill()
         # взрыв на месте убитого врага
         # TODO очень хочу есть - тут крайне корявая реализация,
         #  если протаранишь несколько самолетов оч быстро - увидишь,
@@ -175,6 +208,7 @@ def game_screen():
                 screen.blit(boom.boom(), i)
             except IndexError:
                 booms.remove(i)
+
         # обновление экрана
         pygame.display.flip()
         # фпс таймер

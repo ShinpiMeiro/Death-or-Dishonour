@@ -17,6 +17,7 @@ class Bullets(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = 0, 0
         self.bullet_speed = 8
         self.shooting = False
+        self.mask = pygame.mask.from_surface(self.image)
 
     def shot(self, bullet_pos):
         self.rect.x, self.rect.y = bullet_pos[0], bullet_pos[1]
