@@ -42,14 +42,6 @@ clock = pygame.time.Clock()
 pygame.display.set_caption('Death or Dishonour')
 # иконка приложения
 pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
-track_count = 0
-battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
-                 'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
-                 'resources/sounds/music/battle_music_5.mp3', 'resources/sounds/music/battle_music_6.mp3']
-ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
-ingame_music_sound = 0.2
-ingame_music.set_volume(ingame_music_sound)
-ingame_music.play()
 
 
 def draw_text(text, font, color, surface, x, y):
@@ -60,6 +52,9 @@ def draw_text(text, font, color, surface, x, y):
 
 
 def main_menu():
+    menu_music = pygame.mixer.Sound('resources/sounds/music/wagner_main_theme.mp3')
+    menu_music.set_volume(0.2)
+    menu_music.play()
     while True:
         mx, my = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
@@ -69,6 +64,7 @@ def main_menu():
         button_exit = pygame.Rect(50, 300, 200, 50)
         if button_play.collidepoint((mx, my)):
             if click:
+                menu_music.stop()
                 game_screen()
         if button_options.collidepoint((mx, my)):
             if click:
@@ -115,12 +111,20 @@ def options_menu():
 
 
 def game_screen():
+    track_count = 0
+    battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
+                     'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
+                     'resources/sounds/music/battle_music_5.mp3', 'resources/sounds/music/battle_music_6.mp3']
+    ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
+    ingame_music_sound = 0.2
+    ingame_music.set_volume(ingame_music_sound)
+    ingame_music.play()
     running = True
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     enemies = pygame.sprite.Group()
     p = Player()
-    booms = []
     bullets_count = pygame.sprite.Group()
+    booms = pygame.sprite.Group()
     level_bckgd_pos = -16000
     current_player_sprite = 'stay'
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
@@ -242,29 +246,16 @@ def game_screen():
             p.stay_1 = not p.stay_1
 
         # проверка коллизии врага и игрока
-        for i in enemies:
-            offset = (p.x - i.rect.x, p.y - i.rect.y)
-            # если есть коллизия - уничтожение врага
-            if p.mask.overlap_area(i.mask, offset) > 0:
-                booms.append((i.rect.x, i.rect.y))
-                boom = Explosion()
-                i.kill()
-            for j in bullets_count:
-                if i.rect.x < j.rect.x < i.rect.x + 20 and i.rect.y < j.rect.y < i.rect.y + 33:
-                    booms.append((i.rect.x, i.rect.y))
-                    boom = Explosion()
-                    i.kill()
-                    j.kill()
-        # взрыв на месте убитого врага
-        # TODO очень хочу есть - тут крайне корявая реализация,
-        #  если протаранишь несколько самолетов оч быстро - увидишь,
-        #  подумай что можно с этим сделать
-        for i in booms:
-            try:
-                screen.blit(boom.boom(), i)
-            except IndexError:
-                booms.remove(i)
+        collision = pygame.sprite.spritecollide(p, enemies, True)
+        if collision:
+            play_sound('resources/sounds/explosion_stun.mp3', 0.05)
 
+        for hit in pygame.sprite.groupcollide(bullets_count, enemies, True, True):
+            play_sound('resources/sounds/explosion_sound.mp3', 0.15)
+
+        # взрыв на месте убитого врага
+        booms.update()
+        booms.draw(screen)
         pygame.display.flip()
         clock.tick(FPS)
 

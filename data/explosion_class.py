@@ -1,10 +1,18 @@
 import pygame
 
 
+def play_sound(sound_p, volume_h=0.5, wait_t=0):
+    pl_sound = pygame.mixer.Sound(sound_p)
+    pl_sound.set_volume(volume_h)
+    pl_sound.play()
+    pygame.time.wait(wait_t)
+
+
 class Explosion(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, group):
+        super().__init__(group)
+        self.add(group)
         self.booms = -1
-        super().__init__()
         self.ex_all = []
         self.ex1 = pygame.image.load("resources/sprites/65_explosions_sprite/1.png")
         self.ex2 = pygame.image.load("resources/sprites/65_explosions_sprite/2.png")
@@ -136,9 +144,16 @@ class Explosion(pygame.sprite.Sprite):
         self.ex_all.append(self.ex63)
         self.ex_all.append(self.ex64)
         self.ex_all.append(self.ex65)
+        self.image = self.ex1
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = 0, 0
 
-    def boom(self):
+    def boom(self, ex_pos):
+        self.rect.x, self.rect.y = ex_pos[0], ex_pos[1]
+        play_sound('resources/sounds/explosion_sound.mp3', 0.1)
+
+    def update(self):
         if self.booms == 64:
             self.kill()
         self.booms += 1
-        return self.ex_all[self.booms]
+        self.image = self.ex_all[self.booms]

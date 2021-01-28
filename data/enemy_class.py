@@ -7,6 +7,7 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__(group)
         self.add(group)
         self.stay1 = pygame.image.load('resources/sprites/enemy_1.png')
+        self.stay1 = pygame.transform.scale(self.stay1, (89, 75))
         self.image = self.stay1
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(100, 500)

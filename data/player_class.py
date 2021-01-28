@@ -38,6 +38,10 @@ class Player(pygame.sprite.Sprite):
         self.body = self.stay1
         self.mask = pygame.mask.from_surface(self.stay1)
 
+        self.rect = self.stay1.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
     def anim_stay(self):
         if self.stay_1:
             self.body = self.stay1
@@ -52,6 +56,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.body = self.left2
         self.mask = pygame.mask.from_surface(self.body)
+        self.rect = self.left1.get_rect()
         return self.body
 
     def anim_right(self):
@@ -60,6 +65,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.body = self.right2
         self.mask = pygame.mask.from_surface(self.body)
+        self.rect = self.right1.get_rect()
         return self.body
 
     def update(self, FPS):
@@ -75,11 +81,13 @@ class Player(pygame.sprite.Sprite):
         if self.moving_right:
             self.xvel = self.speed
 
-        if not(self.moving_left or self.moving_right):
+        if not (self.moving_left or self.moving_right):
             self.xvel = 0
 
-        if not(self.moving_up or self.moving_down):
+        if not (self.moving_up or self.moving_down):
             self.yvel = 0
 
         self.x += self.xvel
         self.y += self.yvel
+        self.rect.x = self.x
+        self.rect.y = self.y
