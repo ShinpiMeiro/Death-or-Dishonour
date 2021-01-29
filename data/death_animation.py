@@ -8,7 +8,7 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
     pygame.time.wait(wait_t)
 
 
-class Explosion(pygame.sprite.Sprite):
+class Explosions(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
         self.add(group)
@@ -150,12 +150,11 @@ class Explosion(pygame.sprite.Sprite):
 
     def boom(self, ex_pos):
         self.rect.x, self.rect.y = ex_pos[0], ex_pos[1]
-        play_sound('resources/sounds/explosion_sound.mp3', 0.1)
 
     def update(self):
         self.booms += 1
         if self.booms == 64:
             self.kill()
         else:
-            self.image = self.ex_all[self.booms]
+            self.image = pygame.transform.scale(self.ex_all[self.booms], (30, 30))
 

@@ -5,6 +5,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
+        self.death_sp = pygame.image.load('resources/sprites/player_stay1.png')
         self.stay1 = pygame.image.load('resources/sprites/player_stay1.png')
         self.stay1 = pygame.transform.scale(self.stay1, (119, 100))
         self.stay2 = pygame.image.load('resources/sprites/player_stay2.png')
@@ -33,14 +34,18 @@ class Player(pygame.sprite.Sprite):
         self.moving_right = False
         self.moving_up = False
         self.moving_down = False
-        self.health_count = 3
         self.status = True
         self.body = self.stay1
         self.mask = pygame.mask.from_surface(self.stay1)
-
         self.rect = self.stay1.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+
+        self.health_count = 1
+        self.minimize = 0
+
+    def death(self):
+        self.death_sp = pygame.transform.scale(self.stay1, (119 - (self.minimize // 4), 100 - (self.minimize // 4)))
 
     def anim_stay(self):
         if self.stay_1:
@@ -56,7 +61,6 @@ class Player(pygame.sprite.Sprite):
         else:
             self.body = self.left2
         self.mask = pygame.mask.from_surface(self.body)
-        self.rect = self.left1.get_rect()
         return self.body
 
     def anim_right(self):
@@ -65,10 +69,10 @@ class Player(pygame.sprite.Sprite):
         else:
             self.body = self.right2
         self.mask = pygame.mask.from_surface(self.body)
-        self.rect = self.right1.get_rect()
         return self.body
 
     def update(self, FPS):
+        self.rect = self.body.get_rect()
         if self.moving_up:
             self.yvel = -self.speed
 

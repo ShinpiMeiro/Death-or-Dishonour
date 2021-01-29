@@ -12,6 +12,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(100, 500)
         self.rect.y = -100
+        self.health_count = 2
         self.xvel = 0
         self.yvel = 5
         self.movement = True
