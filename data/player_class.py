@@ -41,7 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-        self.health_count = 1
+        self.health_count = 3
         self.minimize = 0
 
     def death(self):
@@ -68,7 +68,6 @@ class Player(pygame.sprite.Sprite):
             self.body = self.right1
         else:
             self.body = self.right2
-        self.mask = pygame.mask.from_surface(self.body)
         return self.body
 
     def update(self, FPS):

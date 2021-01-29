@@ -8,6 +8,9 @@ class Enemy(pygame.sprite.Sprite):
         self.add(group)
         self.stay1 = pygame.image.load('resources/sprites/enemy_1.png')
         self.stay1 = pygame.transform.scale(self.stay1, (89, 75))
+        self.stay2 = pygame.image.load('resources/sprites/enemy_2.png')
+        self.stay2 = pygame.transform.scale(self.stay2, (89, 75))
+        self.stay_1 = True
         self.image = self.stay1
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(100, 500)
@@ -22,7 +25,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.movement:
             self.movement = not self.movement
             self.rect.x += self.xvel
-            if self.rect.y < -100 or self.rect.y > 700:
+            if self.rect.y < -100 or self.rect.y > 900:
                 self.kill()
             if self.rect.y < 800:
                 self.rect.y += self.yvel
