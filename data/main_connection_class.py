@@ -3,9 +3,10 @@ import pygame.freetype
 import sys
 from data.player_class import Player
 from data.explosion_class import Explosion
-from data.objects_class import Bullets
+from data.objects_class import Bullets, Damage
 from data.enemy_class import Enemy
 from data.death_animation import Explosions
+import random
 
 def fadeout(W, H, scr):
     fade = pygame.Surface((W, H))
@@ -155,8 +156,10 @@ def game_screen():
     running = True
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     enemies = pygame.sprite.Group()
+    game_score = 0
     death = False
     p = Player()
+    window_holes = pygame.sprite.Group()
     bullets_count = pygame.sprite.Group()
     booms = pygame.sprite.Group()
     small_booms = pygame.sprite.Group()
@@ -165,10 +168,10 @@ def game_screen():
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
     screen.blit(current_level_background, (0, 0))
     last = pygame.time.get_ticks()
-    cooldown = 800
+    cooldown = 300
     while running:
         #  ---------------------------------------- управление
-        for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные другими классами
+        for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные пользователем
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_EQUALS:
                 ingame_music.stop()
@@ -235,13 +238,15 @@ def game_screen():
 
             # просчет выстрела
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and p.health_count > 0:
-                Bullets(bullets_count).shot((p.x + 21, p.y - 25))
-                Bullets(bullets_count).shot((p.x + 76, p.y - 25))
-                Bullets.shooting = True
+                now = pygame.time.get_ticks()
+                if now - last >= cooldown:
+                    last = now
+                    Bullets(bullets_count).shot((p.x + 21, p.y - 25))
+                    Bullets(bullets_count).shot((p.x + 76, p.y - 25))
+                    Bullets.shooting = True
 
             # просчет выстрела, но для пробела
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and p.health_count > 0:
-                print('+')
                 now = pygame.time.get_ticks()
                 if now - last >= cooldown:
                     last = now
@@ -250,7 +255,7 @@ def game_screen():
                     Bullets.shooting = True
 
             # спавн врагов
-            if event.type == pygame.USEREVENT:
+            if event.type == pygame.USEREVENT and level_bckgd_pos < 0:
                 Enemy(enemies)
             # если пользователь закроет программу, игра завершится
             if event.type == pygame.QUIT:
@@ -264,7 +269,7 @@ def game_screen():
         # передвижение заднего фона
         level_bckgd_pos += 2
         if level_bckgd_pos >= 0:
-            level_bckgd_pos = -16000
+            screen.fill((0, 0, 0))
         screen.blit(current_level_background, (0, level_bckgd_pos))
         # передвижение игрока
         if p.health_count > 0:
@@ -275,18 +280,33 @@ def game_screen():
                 if collision:
                     Explosion(booms).boom((i.rect.x, i.rect.y))
                     i.kill()
+                    game_score += 10
                     p.health_count -= 1
+                    Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
                     play_sound('resources/sounds/explosion_sound.mp3', 0.01)
                     if p.health_count > 0:
-                        play_sound('resources/sounds/explosion_stun.mp3', 0.005)
+                        play_sound('resources/sounds/explosion_stun.mp3', 0.01)
                 for j in bullets_count:
                     collision = pygame.sprite.collide_rect(j, i)
                     if collision:
                         Explosion(booms).boom((i.rect.x, i.rect.y))
+                        game_score += 5
                         i.kill()
                         j.kill()
                         play_sound('resources/sounds/explosion_sound.mp3', 0.01)
 
+            if len(str(game_score)) < 2:
+                draw_text('00000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+            elif len(str(game_score)) < 3:
+                draw_text('0000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+            elif len(str(game_score)) < 4:
+                draw_text('000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+            elif len(str(game_score)) < 5:
+                draw_text('00' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+            elif len(str(game_score)) < 6:
+                draw_text('0' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+            elif len(str(game_score)) >= 6:
+                draw_text("Max score", font, (255, 255, 255), screen, 510, 20)
             p.update(FPS)
             # смена текстур игрока
             if current_player_sprite == 'left':
@@ -317,6 +337,8 @@ def game_screen():
                     p.kill()
 
         # передвижение врагов
+        window_holes.update()
+        window_holes.draw(screen)
 
         enemies.update(FPS)
         # отрисовка врагов
