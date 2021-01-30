@@ -8,6 +8,7 @@ from data.enemy_class import Enemy
 from data.death_animation import Explosions
 import random
 
+
 def fadeout(W, H, scr):
     fade = pygame.Surface((W, H))
     fade.fill((255, 0, 0))
@@ -25,6 +26,9 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
     pygame.time.wait(wait_t)
 
 
+is_sound = True
+line_counter = 0
+player_name = ''
 pygame.init()
 width = 600
 height = 800
@@ -39,16 +43,17 @@ pygame.display.set_caption('Death or Dishonour')
 pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
 
 
-def draw_text(text, font, color, surface, x, y):
-    text_object = font.render(text, color)
+def draw_text(text, font_u, color, surface, x, y):
+    text_object = font_u.render(text, color)
     textrect = text_object[1]
     textrect.topleft = (x, y)
     surface.blit(text_object[0], textrect)
 
 
 def main_menu():
-    screen = pygame.display.set_mode((600, 500))
+    screen = pygame.display.set_mode((600, 800))
     click = False
+    pygame.mixer.stop()
     menu_music = pygame.mixer.Sound('resources/sounds/music/wagner_main_theme.mp3')
     menu_music.set_volume(0.1)
     menu_music.play()
@@ -87,10 +92,8 @@ def main_menu():
 
         if b_play_mask.collidepoint((mx, my)):
             if click:
-                print(pygame.mouse.get_pos())
                 menu_music.stop()
                 game_screen()
-                screen = pygame.display.set_mode((600, 500))
         if b_options_mask.collidepoint((mx, my)):
             if click:
                 options_menu()
@@ -98,7 +101,6 @@ def main_menu():
             if click:
                 pygame.quit()
                 sys.exit()
-
 
         click = False
         for event in pygame.event.get():
@@ -118,38 +120,121 @@ def main_menu():
 
 
 def options_menu():
-    screen = pygame.display.set_mode((600, 400))
+    global player_name, line_counter, is_sound
+    screen = pygame.display.set_mode((600, 800))
     running = True
+    click = False
     while running:
         mx, my = pygame.mouse.get_pos()
 
         background = pygame.image.load('resources/images/menu_background.jpg')
         background = pygame.transform.scale(background, (600, 855))
         screen.blit(background, (0, 0))
-
         draw_text('Options', font, (255, 255, 255), screen, 50, 20)
 
+        button_1 = pygame.image.load('resources/sprites/button.png')
+        button_1 = pygame.transform.scale(button_1, (202, 105))
+        b_1_mask = button_1.get_rect()
+        b_1_mask.x = 50
+        b_1_mask.y = 70
+        screen.blit(button_1, (b_1_mask.x, b_1_mask.y))
+        draw_text(player_name, font, (255, 255, 255), screen, 115, 100)
+        if line_counter == 0:
+            draw_text('ENTER', font, (255, 0, 0), screen, 260, 90)
+            draw_text('NICKNAME', font, (255, 0, 0), screen, 260, 120)
+
+        button_2 = pygame.image.load('resources/sprites/button.png')
+        button_2 = pygame.transform.scale(button_2, (202, 105))
+        b_2_mask = button_2.get_rect()
+        b_2_mask.x = 50
+        b_2_mask.y = 185
+        screen.blit(button_2, (b_2_mask.x, b_2_mask.y))
+        if is_sound:  # TODO плохо работает звук, я пофикшу
+            draw_text('on', font, (255, 255, 255), screen, 115, 225)
+        else:
+            draw_text('off', font, (255, 255, 255), screen, 115, 210)
+
+        button_back = pygame.image.load('resources/sprites/button.png')
+        button_back = pygame.transform.scale(button_back, (202, 105))
+        b_back_mask = button_back.get_rect()
+        b_back_mask.x = 50
+        b_back_mask.y = 300
+        screen.blit(button_back, (b_back_mask.x, b_back_mask.y))
+        draw_text('back', font, (255, 255, 255), screen, 103, 330)
+
+        if b_1_mask.collidepoint((mx, my)):
+            if click:
+                pass
+        if b_2_mask.collidepoint((mx, my)):
+            if click:
+                if is_sound:
+                    is_sound = not is_sound
+                    pygame.mixer.pause()
+                else:
+                    is_sound = not is_sound
+                    pygame.mixer.unpause()
+        if b_back_mask.collidepoint((mx, my)):
+            if click:
+                running = False
+
+        click = False
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    player_name = player_name[:-1]
+                    if line_counter != 0:
+                        line_counter -= 1
+                elif event.mod == pygame.KMOD_NONE and event.key != pygame.K_TAB:
+                    if line_counter != 3:
+                        line_counter += 1
+                        player_name += str(event.unicode).upper()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
 
         pygame.display.update()
         clock.tick(10)
 
 
+def death_screen():
+    running = True
+    while running:
+        screen = pygame.display.set_mode((600, 800))
+        screen.fill((0, 0, 0))
+        ds = pygame.image.load('resources/images/death_sentence.png')
+        ds = pygame.transform.rotate(ds, 88)
+        ds = pygame.transform.scale(ds, (600, 800))
+        screen.blit(ds, (1, 1))
+        draw_text('we need smth to show', font, (0, 0, 0), screen, 50, 50)
+        draw_text('like', font, (0, 0, 0), screen, 250, 100)
+        like = pygame.image.load('resources/sprites/death_sentence.jpg')
+        like = pygame.transform.scale(like, (400, 225))
+        screen.blit(like, (100, 150))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
+                main_menu()
+        pygame.display.update()
+        clock.tick(10)
+
+
 def game_screen():
-    width = 600
-    height = 800
-    screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((600, 800))
     track_count = 0
     battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
                      'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
                      'resources/sounds/music/battle_music_5.mp3', 'resources/sounds/music/battle_music_6.mp3']
     ingame_music = pygame.mixer.Sound(battle_tracks[track_count])
+    ingame_music.stop()
     ingame_music_sound = 0.1
     ingame_music.set_volume(ingame_music_sound)
     ingame_music.play()
@@ -257,6 +342,8 @@ def game_screen():
             # спавн врагов
             if event.type == pygame.USEREVENT and level_bckgd_pos < 0:
                 Enemy(enemies)
+            if event.type == pygame.USEREVENT and death:
+                death_screen()
             # если пользователь закроет программу, игра завершится
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -295,18 +382,6 @@ def game_screen():
                         j.kill()
                         play_sound('resources/sounds/explosion_sound.mp3', 0.01)
 
-            if len(str(game_score)) < 2:
-                draw_text('00000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
-            elif len(str(game_score)) < 3:
-                draw_text('0000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
-            elif len(str(game_score)) < 4:
-                draw_text('000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
-            elif len(str(game_score)) < 5:
-                draw_text('00' + str(game_score), font, (255, 255, 255), screen, 430, 20)
-            elif len(str(game_score)) < 6:
-                draw_text('0' + str(game_score), font, (255, 255, 255), screen, 430, 20)
-            elif len(str(game_score)) >= 6:
-                draw_text("Max score", font, (255, 255, 255), screen, 510, 20)
             p.update(FPS)
             # смена текстур игрока
             if current_player_sprite == 'left':
@@ -335,7 +410,6 @@ def game_screen():
                     Explosions(small_booms).boom((p.rect.x, p.rect.y))
                     Explosions(small_booms).boom((p.rect.x - 22, p.rect.y + 7))
                     p.kill()
-
         # передвижение врагов
         window_holes.update()
         window_holes.draw(screen)
@@ -349,6 +423,22 @@ def game_screen():
 
         small_booms.update()
         small_booms.draw(screen)
+
+        # ник игрока
+        draw_text('Player: {}'.format(player_name), font, (255, 255, 255), screen, 20, 20)
+        # cчет игрока
+        if len(str(game_score)) < 2:
+            draw_text('00000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+        elif len(str(game_score)) < 3:
+            draw_text('0000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+        elif len(str(game_score)) < 4:
+            draw_text('000' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+        elif len(str(game_score)) < 5:
+            draw_text('00' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+        elif len(str(game_score)) < 6:
+            draw_text('0' + str(game_score), font, (255, 255, 255), screen, 430, 20)
+        elif len(str(game_score)) >= 6:
+            draw_text("Max score", font, (255, 255, 255), screen, 510, 20)
 
         # взрыв на месте убитого врага
         booms.update()

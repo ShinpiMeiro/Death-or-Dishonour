@@ -41,7 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-        self.health_count = 15
+        self.health_count = 5
         self.minimize = 0
 
     def death(self):
