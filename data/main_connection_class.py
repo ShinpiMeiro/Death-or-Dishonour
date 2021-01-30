@@ -282,9 +282,9 @@ def game_screen():
                     i.kill()
                     game_score += 10
                     p.health_count -= 1
-                    Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
                     play_sound('resources/sounds/explosion_sound.mp3', 0.01)
                     if p.health_count > 0:
+                        Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
                         play_sound('resources/sounds/explosion_stun.mp3', 0.01)
                 for j in bullets_count:
                     collision = pygame.sprite.collide_rect(j, i)
