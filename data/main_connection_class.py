@@ -1,22 +1,13 @@
 import pygame
 import pygame.freetype
 import sys
+import sqlite3
 from data.player_class import Player
 from data.explosion_class import Explosion
 from data.objects_class import Bullets, Damage
 from data.enemy_class import Enemy
 from data.death_animation import Explosions
 import random
-
-
-def fadeout(W, H, scr):
-    fade = pygame.Surface((W, H))
-    fade.fill((255, 0, 0))
-    for alpha in range(0, 254):
-        fade.set_alpha(alpha)
-        scr.blit(fade, (0, 0))
-        pygame.display.update()
-        pygame.time.delay(50)
 
 
 def play_sound(sound_p, volume_h=0.5, wait_t=0):
@@ -26,7 +17,11 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
     pygame.time.wait(wait_t)
 
 
+running_game = True
+con = sqlite3.connect('resources/db/leaderbord.db')
+cur = con.cursor()
 is_sound = True
+game_score = 0
 line_counter = 0
 player_name = ''
 pygame.init()
@@ -36,11 +31,32 @@ FPS = 100
 menu = True
 speed = 2
 font = pygame.freetype.Font('resources/sprites/font_main.ttf', 45)
+font_table = pygame.freetype.Font('resources/sprites/font_main.ttf', 25)
+font_space = pygame.freetype.Font('resources/sprites/space.ttf', 20)
 clock = pygame.time.Clock()
 # заголовок окна
 pygame.display.set_caption('Death or Dishonour')
 # иконка приложения
 pygame.display.set_icon(pygame.image.load('resources/images/test_small_logo_1.bmp'))
+screen = pygame.display.set_mode((600, 800))
+
+
+def draw_controls():
+    pygame.draw.rect(screen, (255, 255, 255), (0, 420, 600, 380), 4)
+    pygame.draw.rect(screen, (0, 0, 0, 1), (3, 422, 595, 376))
+
+    draw_text('controls:', font, (255, 255, 255), screen, 20, 430)
+
+    wasd = pygame.image.load('resources/sprites/controls_1.png')
+    wasd = pygame.transform.scale(wasd, (243, 100))
+    screen.blit(wasd, (20, 450))
+    pygame.draw.rect(screen, (255, 255, 255), (20, 626, 130, 25))
+    draw_text('SPACE', font_space, (0, 0, 0), screen, 50, 631)
+    draw_text(' - movement', font, (255, 255, 255), screen, 270, 502)
+    mouse = pygame.image.load('resources/sprites/controls_2.png')
+    mouse = pygame.transform.scale(mouse, (90, 100))
+    screen.blit(mouse, (153, 570))
+    draw_text(' - shoot', font, (255, 255, 255), screen, 270, 620)
 
 
 def draw_text(text, font_u, color, surface, x, y):
@@ -51,13 +67,16 @@ def draw_text(text, font_u, color, surface, x, y):
 
 
 def main_menu():
-    screen = pygame.display.set_mode((600, 800))
+    table = []
     click = False
     pygame.mixer.stop()
     menu_music = pygame.mixer.Sound('resources/sounds/music/wagner_main_theme.mp3')
     menu_music.set_volume(0.1)
     menu_music.play()
     while True:
+        result = cur.execute("""SELECT * FROM highest_score ORDER BY score DESC LIMIT 7""")
+        for elem in result:
+            table.append(elem)
         mx, my = pygame.mouse.get_pos()
 
         background = pygame.image.load('resources/images/menu_background.jpg')
@@ -67,28 +86,48 @@ def main_menu():
         draw_text('Death or Dishonour', font, (255, 255, 255), screen, 50, 20)
 
         button_play = pygame.image.load('resources/sprites/button.png')
-        button_play = pygame.transform.scale(button_play, (202, 105))
+        button_play = pygame.transform.scale(button_play, (222, 105))
         b_play_mask = button_play.get_rect()
         b_play_mask.x = 50
         b_play_mask.y = 70
         screen.blit(button_play, (b_play_mask.x, b_play_mask.y))
-        draw_text('play', font, (255, 255, 255), screen, 103, 100)
+        draw_text('play', font, (255, 255, 255), screen, 113, 100)
 
         button_options = pygame.image.load('resources/sprites/button.png')
-        button_options = pygame.transform.scale(button_options, (202, 105))
+        button_options = pygame.transform.scale(button_options, (222, 105))
         b_options_mask = button_options.get_rect()
         b_options_mask.x = 50
         b_options_mask.y = 185
         screen.blit(button_options, (b_options_mask.x, b_options_mask.y))
-        draw_text('options', font, (255, 255, 255), screen, 68, 215)
+        draw_text('options', font, (255, 255, 255), screen, 78, 215)
 
         button_exit = pygame.image.load('resources/sprites/button.png')
-        button_exit = pygame.transform.scale(button_exit, (202, 105))
+        button_exit = pygame.transform.scale(button_exit, (222, 105))
         b_exit_mask = button_exit.get_rect()
         b_exit_mask.x = 50
         b_exit_mask.y = 300
         screen.blit(button_exit, (b_exit_mask.x, b_exit_mask.y))
-        draw_text('quit', font, (255, 255, 255), screen, 103, 330)
+        draw_text('quit', font, (255, 255, 255), screen, 113, 330)
+
+        pygame.draw.rect(screen, (0, 0, 0), (310, 70, 250, 335))
+        pygame.draw.rect(screen, (255, 255, 255), (310, 70, 250, 335), 3)
+        pygame.draw.line(screen, (255, 255, 255), (310, 124), (560, 124), 3)
+        pygame.draw.line(screen, (255, 255, 255), (435, 124), (435, 405), 3)
+        charge = 40
+        y = 124
+        for i in range(1, 8):
+            y += charge
+            pygame.draw.line(screen, (255, 255, 255), (310, y), (560, y), 3)
+        draw_text('leaderboard', font_table, (255, 255, 255), screen, 362, 80)
+        x = 350
+        y = 140
+        for i in table:
+            draw_text(str(i[0]), font_table, (255, 255, 255), screen, x, y)
+            draw_text(str(i[1]), font_table, (255, 255, 255), screen, x+100, y)
+            y += charge
+        table.clear()
+
+        draw_controls()
 
         if b_play_mask.collidepoint((mx, my)):
             if click:
@@ -121,7 +160,7 @@ def main_menu():
 
 def options_menu():
     global player_name, line_counter, is_sound
-    screen = pygame.display.set_mode((600, 800))
+
     running = True
     click = False
     while running:
@@ -133,38 +172,37 @@ def options_menu():
         draw_text('Options', font, (255, 255, 255), screen, 50, 20)
 
         button_1 = pygame.image.load('resources/sprites/button.png')
-        button_1 = pygame.transform.scale(button_1, (202, 105))
+        button_1 = pygame.transform.scale(button_1, (222, 105))
         b_1_mask = button_1.get_rect()
         b_1_mask.x = 50
         b_1_mask.y = 70
         screen.blit(button_1, (b_1_mask.x, b_1_mask.y))
-        draw_text(player_name, font, (255, 255, 255), screen, 115, 100)
+        draw_text(player_name, font, (255, 255, 255), screen, 125, 100)
         if line_counter == 0:
-            draw_text('ENTER', font, (255, 0, 0), screen, 260, 90)
-            draw_text('NICKNAME', font, (255, 0, 0), screen, 260, 120)
+            draw_text('ENTER', font, (255, 0, 0), screen, 280, 90)
+            draw_text('NICKNAME', font, (255, 0, 0), screen, 280, 120)
 
         button_2 = pygame.image.load('resources/sprites/button.png')
-        button_2 = pygame.transform.scale(button_2, (202, 105))
+        button_2 = pygame.transform.scale(button_2, (222, 105))
         b_2_mask = button_2.get_rect()
         b_2_mask.x = 50
         b_2_mask.y = 185
         screen.blit(button_2, (b_2_mask.x, b_2_mask.y))
         if is_sound:  # TODO плохо работает звук, я пофикшу
-            draw_text('on', font, (255, 255, 255), screen, 115, 225)
+            draw_text('on', font, (255, 255, 255), screen, 140, 225)
         else:
-            draw_text('off', font, (255, 255, 255), screen, 115, 210)
+            draw_text('off', font, (255, 255, 255), screen, 125, 210)
 
         button_back = pygame.image.load('resources/sprites/button.png')
-        button_back = pygame.transform.scale(button_back, (202, 105))
+        button_back = pygame.transform.scale(button_back, (222, 105))
         b_back_mask = button_back.get_rect()
         b_back_mask.x = 50
         b_back_mask.y = 300
         screen.blit(button_back, (b_back_mask.x, b_back_mask.y))
-        draw_text('back', font, (255, 255, 255), screen, 103, 330)
+        draw_text('back', font, (255, 255, 255), screen, 113, 330)
 
-        if b_1_mask.collidepoint((mx, my)):
-            if click:
-                pass
+        draw_controls()
+
         if b_2_mask.collidepoint((mx, my)):
             if click:
                 if is_sound:
@@ -184,6 +222,20 @@ def options_menu():
                     player_name = player_name[:-1]
                     if line_counter != 0:
                         line_counter -= 1
+                elif event.key == pygame.K_SPACE:
+                    pass
+                elif event.key == pygame.K_UP:
+                    pass
+                elif event.key == pygame.K_DOWN:
+                    pass
+                elif event.key == pygame.K_LEFT:
+                    pass
+                elif event.key == pygame.K_RIGHT:
+                    pass
+                elif event.key == pygame.K_RETURN:
+                    pass
+                elif event.key == pygame.K_ESCAPE:
+                    running = False
                 elif event.mod == pygame.KMOD_NONE and event.key != pygame.K_TAB:
                     if line_counter != 3:
                         line_counter += 1
@@ -191,9 +243,6 @@ def options_menu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
@@ -203,17 +252,17 @@ def options_menu():
 
 
 def death_screen():
+    global running_game
     running = True
     while running:
-        screen = pygame.display.set_mode((600, 800))
         screen.fill((0, 0, 0))
-        ds = pygame.image.load('resources/images/death_sentence.png')
+        ds = pygame.image.load('resources/sprites/death_sentence.png')
         ds = pygame.transform.rotate(ds, 88)
         ds = pygame.transform.scale(ds, (600, 800))
         screen.blit(ds, (1, 1))
         draw_text('we need smth to show', font, (0, 0, 0), screen, 50, 50)
         draw_text('like', font, (0, 0, 0), screen, 250, 100)
-        like = pygame.image.load('resources/sprites/death_sentence.jpg')
+        like = pygame.image.load('resources/images/death_sentence.jpg')
         like = pygame.transform.scale(like, (400, 225))
         screen.blit(like, (100, 150))
         for event in pygame.event.get():
@@ -222,13 +271,16 @@ def death_screen():
                 sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 running = False
-                main_menu()
+                running_game = False
         pygame.display.update()
         clock.tick(10)
 
 
 def game_screen():
-    screen = pygame.display.set_mode((600, 800))
+    global game_score, player_name, running_game
+    game_score = 0
+    if player_name == '':
+        player_name = 'NON'
     track_count = 0
     battle_tracks = ['resources/sounds/music/battle_music_1.mp3', 'resources/sounds/music/battle_music_2.mp3',
                      'resources/sounds/music/battle_music_3.mp3', 'resources/sounds/music/battle_music_4.mp3',
@@ -238,10 +290,9 @@ def game_screen():
     ingame_music_sound = 0.1
     ingame_music.set_volume(ingame_music_sound)
     ingame_music.play()
-    running = True
+    running_game = True
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     enemies = pygame.sprite.Group()
-    game_score = 0
     death = False
     p = Player()
     window_holes = pygame.sprite.Group()
@@ -254,7 +305,7 @@ def game_screen():
     screen.blit(current_level_background, (0, 0))
     last = pygame.time.get_ticks()
     cooldown = 300
-    while running:
+    while running_game:
         #  ---------------------------------------- управление
         for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные пользователем
 
@@ -344,14 +395,31 @@ def game_screen():
                 Enemy(enemies)
             if event.type == pygame.USEREVENT and death:
                 death_screen()
+                while True:
+                    if len(str(game_score)) < 6:
+                        game_score = '0' + str(game_score)
+                    else:
+                        break
+                var = "INSERT INTO highest_score VALUES ('{}', '{}')".format(player_name, game_score)
+                cur.execute(var)
+                con.commit()
             # если пользователь закроет программу, игра завершится
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             # выход в меню
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                running = False
+                running_game = False
                 ingame_music.stop()
+                while True:
+                    if len(str(game_score)) < 6:
+                        game_score = '0' + str(game_score)
+                    else:
+                        break
+                var = "INSERT INTO highest_score VALUES ('{}', '{}')".format(player_name, game_score)
+                cur.execute(var)
+                con.commit()
+
 
         # передвижение заднего фона
         level_bckgd_pos += 2
