@@ -150,7 +150,6 @@ class Explosion(pygame.sprite.Sprite):
 
     def boom(self, ex_pos):
         self.rect.x, self.rect.y = ex_pos[0], ex_pos[1]
-        play_sound('resources/sounds/explosion_sound.mp3', 0.1)
 
     def update(self):
         self.booms += 1

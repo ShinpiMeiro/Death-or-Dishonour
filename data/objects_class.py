@@ -21,7 +21,6 @@ class Bullets(pygame.sprite.Sprite):
 
     def shot(self, bullet_pos):
         self.rect.x, self.rect.y = bullet_pos[0], bullet_pos[1]
-        play_sound('resources/sounds/shot_sound.mp3', 0.1)  # проигрывание звука
 
     def update(self):
         if self.rect.y < -100 or self.rect.y > 700:
@@ -46,7 +45,6 @@ class Damage(pygame.sprite.Sprite):
 
     def taking_damage(self, sprite_pos):
         self.rect.x, self.rect.y = sprite_pos[0], sprite_pos[1]
-        play_sound('resources/sounds/window_crashed.mp3', 0.1)  # проигрывание звука
 
     def update(self):
         if self.time >= 900:

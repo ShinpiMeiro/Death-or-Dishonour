@@ -1,13 +1,6 @@
 import pygame
 
 
-def play_sound(sound_p, volume_h=0.5, wait_t=0):
-    pl_sound = pygame.mixer.Sound(sound_p)
-    pl_sound.set_volume(volume_h)
-    pl_sound.play()
-    pygame.time.wait(wait_t)
-
-
 class Smallexplosions(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
