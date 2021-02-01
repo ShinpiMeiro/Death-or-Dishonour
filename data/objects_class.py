@@ -38,6 +38,7 @@ class Damage(pygame.sprite.Sprite):
         super().__init__(group)
         self.add(group)
         self.image = pygame.image.load('resources/sprites/broken_window.png')
+        self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 0, 0
         self.time = 0
@@ -48,8 +49,8 @@ class Damage(pygame.sprite.Sprite):
         play_sound('resources/sounds/window_crashed.mp3', 0.1)  # проигрывание звука
 
     def update(self):
-        if self.time >= 1100:
+        if self.time >= 900:
             self.kill()
-        elif self.time < 1100:
+        elif self.time < 900:
             self.time += 1
 

@@ -6,7 +6,9 @@ from data.player_class import Player
 from data.explosion_class import Explosion
 from data.objects_class import Bullets, Damage
 from data.enemy_class import Enemy
-from data.death_animation import Explosions
+from data.enemy_class import Boss
+from data.death_animation import Smallexplosions
+from data.explosion_class import Miniexplosion
 import random
 
 
@@ -290,6 +292,7 @@ def game_screen():
     ingame_music_sound = 0.1
     ingame_music.set_volume(ingame_music_sound)
     ingame_music.play()
+    bs = False
     running_game = True
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     enemies = pygame.sprite.Group()
@@ -299,12 +302,19 @@ def game_screen():
     bullets_count = pygame.sprite.Group()
     booms = pygame.sprite.Group()
     small_booms = pygame.sprite.Group()
-    level_bckgd_pos = -16000
+    mini_booms = pygame.sprite.Group()
+    phase1_score = True
+    phase2_score = True
+    phase3_score = True
+    phase4_score = True
+    skill_done = False
+    col_check = 1
+    level_bckgd_pos = -16800
     current_player_sprite = 'stay'
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
     screen.blit(current_level_background, (0, 0))
     last = pygame.time.get_ticks()
-    cooldown = 300
+    cooldown = 100
     while running_game:
         #  ---------------------------------------- управление
         for event in pygame.event.get():  # в этом цикле мы принимаем сообщения, отправленные пользователем
@@ -391,7 +401,10 @@ def game_screen():
                     Bullets.shooting = True
 
             # спавн врагов
-            if event.type == pygame.USEREVENT and level_bckgd_pos < 0:
+            if event.type == pygame.USEREVENT and level_bckgd_pos >= -4500 and not bs:
+                bs = True
+                b = Boss()
+            if event.type == pygame.USEREVENT and level_bckgd_pos < -4500:
                 Enemy(enemies)
             if event.type == pygame.USEREVENT and death:
                 death_screen()
@@ -434,21 +447,85 @@ def game_screen():
                 collision = pygame.sprite.collide_rect(p, i)
                 if collision:
                     Explosion(booms).boom((i.rect.x, i.rect.y))
-                    i.kill()
-                    game_score += 10
+                    if i.health_count - 2 <= 0:
+                        game_score += 10
+                        i.kill()
+                        Explosion(booms).boom((i.rect.x, i.rect.y))
+                    else:
+                        i.health_count -= 2
+                        play_sound('resources/sounds/collision_sound.mp3', 0.03)
                     p.health_count -= 1
-                    play_sound('resources/sounds/explosion_sound.mp3', 0.01)
+                    play_sound('resources/sounds/explosion_sound.mp3', 0.05)
                     if p.health_count > 0:
                         Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
-                        play_sound('resources/sounds/explosion_stun.mp3', 0.01)
+                        play_sound('resources/sounds/explosion_stun.mp3', 0.02)
                 for j in bullets_count:
                     collision = pygame.sprite.collide_rect(j, i)
                     if collision:
-                        Explosion(booms).boom((i.rect.x, i.rect.y))
-                        game_score += 5
-                        i.kill()
+                        if i.health_count - 1 <= 0:
+                            game_score += 5
+                            i.kill()
+                            Explosion(booms).boom((i.rect.x, i.rect.y))
+                        else:
+                            i.health_count -= 1
+                            Miniexplosion(mini_booms).boom((j.rect.x, j.rect.y))
+                            play_sound('resources/sounds/collision_sound.mp3', 0.03)
                         j.kill()
-                        play_sound('resources/sounds/explosion_sound.mp3', 0.01)
+
+            if bs:
+                collision = pygame.sprite.collide_rect(b, p)
+                if collision:
+                    b.health_count -= 0.3
+                    play_sound('resources/sounds/collision_sound.mp3', 0.03)
+                    p.health_count -= 0.2
+                    play_sound('resources/sounds/explosion_sound.mp3', 0.05)
+                    if b.body == b.stay1 or b.body == b.stay2:
+                        b.body = b.stay2
+                    if b.body == b.stay3 or b.body == b.stay4:
+                        b.body = b.stay4
+                    if b.body == b.stay5 or b.body == b.stay6:
+                        b.body = b.stay6
+                    col_check += 1
+                    if p.health_count > 1:
+                        Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
+                        play_sound('resources/sounds/explosion_stun.mp3', 0.02)
+                for j in bullets_count:
+                    collision = pygame.sprite.collide_rect(b, j)
+                    if collision:
+                        if b.body == b.stay1 or b.body == b.stay2:
+                            b.body = b.stay2
+                        if b.body == b.stay3 or b.body == b.stay4:
+                            b.body = b.stay4
+                        if b.body == b.stay5 or b.body == b.stay6:
+                            b.body = b.stay6
+                        col_check += 1
+                        b.health_count -= 0.2
+                        play_sound('resources/sounds/collision_sound.mp3', 0.03)
+                        j.kill()
+
+            if bs:
+                if b.body == b.stay3 and phase1_score:
+                    game_score += 100
+                    phase1_score = False
+                if b.body == b.stay5 and phase2_score:
+                    game_score += 100
+                    phase2_score = False
+                if b.body == b.stay7 and phase3_score:
+                    game_score += 200
+                    phase3_score = False
+
+                if col_check % 40 == 0:
+                    b.change_sprite()
+                else:
+                    col_check += 1
+                if b.health_count > 0:
+                    screen.blit(b.body, (b.x, b.y))
+                elif b.health_count <= 0 and phase4_score:
+                    phase4_score = False
+                    game_score += 350
+                    Explosion(booms).boom((b.rect.x + 3, b.rect.y + 25))
+                    Explosion(booms).boom((b.rect.x, b.rect.y))
+                    Explosion(booms).boom((b.rect.x - 22, b.rect.y + 7))
 
             p.update(FPS)
             # смена текстур игрока
@@ -474,9 +551,9 @@ def game_screen():
                     screen.blit(p.death_sp, (p.x, p.y))
                 else:
                     death = True
-                    Explosions(small_booms).boom((p.rect.x + 3, p.rect.y + 25))
-                    Explosions(small_booms).boom((p.rect.x, p.rect.y))
-                    Explosions(small_booms).boom((p.rect.x - 22, p.rect.y + 7))
+                    Smallexplosions(small_booms).boom((p.rect.x + 3, p.rect.y + 25))
+                    Smallexplosions(small_booms).boom((p.rect.x, p.rect.y))
+                    Smallexplosions(small_booms).boom((p.rect.x - 22, p.rect.y + 7))
                     p.kill()
         # передвижение врагов
         window_holes.update()
@@ -491,6 +568,9 @@ def game_screen():
 
         small_booms.update()
         small_booms.draw(screen)
+
+        mini_booms.update()
+        mini_booms.draw(screen)
 
         # ник игрока
         draw_text('Player: {}'.format(player_name), font, (255, 255, 255), screen, 20, 20)

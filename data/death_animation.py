@@ -8,7 +8,7 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
     pygame.time.wait(wait_t)
 
 
-class Explosions(pygame.sprite.Sprite):
+class Smallexplosions(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
         self.add(group)

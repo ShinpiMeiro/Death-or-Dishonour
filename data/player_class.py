@@ -41,7 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-        self.health_count = 5
+        self.health_count = 15
         self.minimize = 0
 
     def death(self):
@@ -90,7 +90,10 @@ class Player(pygame.sprite.Sprite):
         if not (self.moving_up or self.moving_down):
             self.yvel = 0
 
-        self.x += self.xvel
-        self.y += self.yvel
+        if 0 < (self.xvel + self.x) < 480:
+            if 690 > (self.yvel + self.y) > 0:
+                self.x += self.xvel
+                self.y += self.yvel
+
         self.rect.x = self.x
         self.rect.y = self.y
