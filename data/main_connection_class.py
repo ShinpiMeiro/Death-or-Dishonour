@@ -443,7 +443,7 @@ def game_screen():
                 con.commit()
 
         # передвижение заднего фона
-        level_bckgd_pos += 2
+        level_bckgd_pos += 10
         if level_bckgd_pos >= 0:
             screen.fill((0, 0, 0))
         screen.blit(current_level_background, (0, level_bckgd_pos))
