@@ -29,6 +29,7 @@ def play_sound(sound_p, volume_h=0.5, wait_t=0):
 
 
 pygame.init()
+speed_bckgd = 2
 running_game = True
 is_sound = True
 menu = True
@@ -208,11 +209,11 @@ def options_menu():
         # ------------------------------------------ draw
         draw_controls()
         draw_text('audio:', font, (255, 255, 255), screen, 60, 195)
-        if is_sound:  # TODO плохо работает звук, я пофикшу
+        if is_sound:
             draw_text('on', font, (255, 255, 255), screen, 190, 245)
         else:
             draw_text('off', font, (255, 255, 255), screen, 175, 230)
-        if line_counter == 0:
+        if line_counter == 0 or player_name == 'NON':
             draw_text('ENTER', font, (255, 0, 0), screen, 280, 90)
             draw_text('NICKNAME', font, (255, 0, 0), screen, 280, 120)
         # ------------------------------------------ collide
@@ -241,6 +242,8 @@ def options_menu():
                     player_name = player_name[:-1]
                     if line_counter != 0:
                         line_counter -= 1
+                elif player_name == 'NON':
+                    pass
                 elif event.key == pygame.K_SPACE:
                     pass
                 elif event.key == pygame.K_UP:
@@ -306,7 +309,6 @@ def game_screen():
     phase3_score = True
     battle_music = True
     phase4_score = True
-    skill_done = False
     col_check = 1
     boss_death = False
     level_bckgd_pos = -23800
@@ -431,19 +433,20 @@ def game_screen():
                 sys.exit()
             # выход в меню
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                running_game = False
-                ingame_music.stop()
-                while True:
-                    if len(str(game_score)) < 6:
-                        game_score = '0' + str(game_score)
-                    else:
-                        break
-                var = "INSERT INTO highest_score VALUES ('{}', '{}')".format(player_name, game_score)
-                cur.execute(var)
-                con.commit()
+                pause_screen()
+                if not running_game:
+                    ingame_music.stop()
+                    while True:
+                        if len(str(game_score)) < 6:
+                            game_score = '0' + str(game_score)
+                        else:
+                            break
+                    var = "INSERT INTO highest_score VALUES ('{}', '{}')".format(player_name, game_score)
+                    cur.execute(var)
+                    con.commit()
 
         # передвижение заднего фона
-        level_bckgd_pos += 10
+        level_bckgd_pos += speed_bckgd
         if level_bckgd_pos >= 0:
             screen.fill((0, 0, 0))
         screen.blit(current_level_background, (0, level_bckgd_pos))
@@ -638,8 +641,9 @@ def game_screen():
         bullets_count.update()
         bullets_count.draw(screen)
 
-        boss_bullets_count.update()
-        boss_bullets_count.draw(screen)
+        if phase3_score:
+            boss_bullets_count.update()
+            boss_bullets_count.draw(screen)
 
         small_booms.update()
         small_booms.draw(screen)
@@ -733,19 +737,19 @@ def death_screen():
         if draw_counter >= 5:
             draw_text('Rating:', font, (255, 255, 255), screen, 50, 470)
         if draw_counter >= 6:
-            if rating <= 4:
+            if rating <= 6:
                 draw_text('F', font_rating, (100, 100, 100), screen, 300, 470)
-            elif rating == 5:
-                draw_text('D', font_rating, (29, 173, 23), screen, 300, 470)
-            elif rating == 6:
-                draw_text('C', font_rating, (20, 20, 255), screen, 300, 470)
             elif rating == 7:
-                draw_text('B', font_rating, (200, 0, 255), screen, 300, 470)
+                draw_text('D', font_rating, (29, 173, 23), screen, 300, 470)
             elif rating == 8:
-                draw_text('A', font_rating, (255, 200, 0), screen, 300, 470)
+                draw_text('C', font_rating, (20, 20, 255), screen, 300, 470)
             elif rating == 9:
+                draw_text('B', font_rating, (200, 0, 255), screen, 300, 470)
+            elif rating == 10:
+                draw_text('A', font_rating, (255, 200, 0), screen, 300, 470)
+            elif rating == 11:
                 draw_text('S', font_rating, (255, 100, 0), screen, 300, 470)
-            elif rating <= 11:
+            elif rating <= 13:
                 draw_text('SS', font_rating, (255, 0, 0), screen, 300, 470)
             else:
                 if color_counter == 0:
@@ -786,6 +790,62 @@ def death_screen():
         pygame.display.update()
         clock.tick(10)
     death_music.stop()
+
+
+def pause_screen():
+    global running_game
+    running = True
+    click = False
+    while running:
+        screen.fill((200, 200, 200))
+        mx, my = pygame.mouse.get_pos()
+
+        pygame.draw.rect(screen, (0, 0, 0), (175, 160, 240, 340))
+        pygame.draw.rect(screen, (255, 255, 255), (175, 160, 240, 340), 3)
+        # ------------------------------------------ name zone draw
+        pygame.draw.rect(screen, (0, 0, 0), (185, 180, 220, 80))
+        pygame.draw.rect(screen, (255, 255, 255), (185, 180, 220, 80), 3)
+        draw_text('Pause', font, (255, 255, 255), screen, 235, 205)
+        # ------------------------------------------ button menu
+        button_menu = pygame.image.load('resources/sprites/button.png')
+        button_menu = pygame.transform.scale(button_menu, (200, 70))
+        b_menu_mask = button_menu.get_rect()
+        b_menu_mask.x = 195
+        b_menu_mask.y = 410
+        screen.blit(button_menu, (b_menu_mask.x, b_menu_mask.y))
+        draw_text('menu', font, (255, 255, 255), screen, 245, 440)
+        # ------------------------------------------ button resume
+        button_resume = pygame.image.load('resources/sprites/button.png')
+        button_resume = pygame.transform.scale(button_resume, (200, 70))
+        b_resume_mask = button_resume.get_rect()
+        b_resume_mask.x = 195
+        b_resume_mask.y = 300
+        screen.blit(button_resume, (b_resume_mask.x, b_resume_mask.y))
+        draw_text('resume', font, (255, 255, 255), screen, 225, 330)
+        # ------------------------------------------ collide
+        if b_menu_mask.collidepoint((mx, my)):
+            pygame.draw.rect(screen, (255, 0, 100), (195, 410, 200, 70), 4)
+            if click:
+                running = False
+                running_game = False
+        if b_resume_mask.collidepoint((mx, my)):
+            pygame.draw.rect(screen, (255, 0, 100), (195, 300, 200, 70), 4)
+            if click:
+                running = False
+        # ------------------------------------------ events
+        click = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+        # ------------------------------------------ update
+        pygame.display.update()
+        clock.tick(10)
 
 
 if __name__ == '__main__':

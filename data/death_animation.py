@@ -150,4 +150,3 @@ class Smallexplosions(pygame.sprite.Sprite):
             self.kill()
         else:
             self.image = pygame.transform.scale(self.ex_all[self.booms], (30, 30))
-

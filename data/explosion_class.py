@@ -200,5 +200,3 @@ class Miniexplosion(pygame.sprite.Sprite):
             self.kill()
         else:
             self.image = pygame.transform.scale(self.ex_all[self.booms], (40, 40))
-
-
