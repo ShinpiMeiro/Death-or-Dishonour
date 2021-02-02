@@ -9,6 +9,7 @@ from data.enemy_class import Enemy
 from data.enemy_class import Boss
 from data.death_animation import Smallexplosions
 from data.explosion_class import Miniexplosion
+from data.objects_class import Bossbullets
 import random
 
 
@@ -296,6 +297,7 @@ def game_screen():
     p = Player()
     window_holes = pygame.sprite.Group()
     bullets_count = pygame.sprite.Group()
+    boss_bullets_count = pygame.sprite.Group()
     booms = pygame.sprite.Group()
     small_booms = pygame.sprite.Group()
     mini_booms = pygame.sprite.Group()
@@ -307,11 +309,13 @@ def game_screen():
     skill_done = False
     col_check = 1
     boss_death = False
-    level_bckgd_pos = -16800
+    level_bckgd_pos = -23800
     current_player_sprite = 'stay'
     current_level_background = pygame.image.load('resources/level_pictures/first_level_bckgd.jpg')
     screen.blit(current_level_background, (0, 0))
     last = pygame.time.get_ticks()
+    last_2 = pygame.time.get_ticks()
+    boss_cooldown = 1000
     cooldown = 100
     while running_game:
         #  ---------------------------------------- управление
@@ -405,10 +409,10 @@ def game_screen():
                     bullets_shot += 2
 
             # спавн врагов
-            if event.type == pygame.USEREVENT and level_bckgd_pos >= -4500 and not bs:
+            if event.type == pygame.USEREVENT and level_bckgd_pos >= -8500 and not bs:
                 bs = True
                 b = Boss()
-            if event.type == pygame.USEREVENT and level_bckgd_pos < -4500:
+            if event.type == pygame.USEREVENT and level_bckgd_pos < -8500:
                 Enemy(enemies)
             if event.type == pygame.USEREVENT and death:
                 ingame_music.stop()
@@ -443,7 +447,7 @@ def game_screen():
         if level_bckgd_pos >= 0:
             screen.fill((0, 0, 0))
         screen.blit(current_level_background, (0, level_bckgd_pos))
-        if level_bckgd_pos > 1600:
+        if level_bckgd_pos > -805:
             death = True
         # передвижение игрока
         if p.health_count > 0:
@@ -495,7 +499,7 @@ def game_screen():
 
             if bs and not boss_death:
                 collision = pygame.sprite.collide_rect(b, p)
-                if collision and b.y > 10:
+                if collision and b.y > 0:
                     b.health_count -= 0.3
                     if is_sound:
                         play_sound('resources/sounds/collision_sound.mp3', 0.03)
@@ -509,14 +513,14 @@ def game_screen():
                     if b.body == b.stay5 or b.body == b.stay6:
                         b.body = b.stay6
                     col_check += 1
-                    if p.health_count > 1:
+                    if p.health_count > 0:
                         Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
                         if is_sound:
                             play_sound('resources/sounds/window_crashed.mp3', 0.1)
                             play_sound('resources/sounds/explosion_stun.mp3', 0.02)
                 for j in bullets_count:
                     collision = pygame.sprite.collide_rect(b, j)
-                    if collision and b.y > 10:
+                    if collision and b.y > 0:
                         if b.body == b.stay1 or b.body == b.stay2:
                             b.body = b.stay2
                         if b.body == b.stay3 or b.body == b.stay4:
@@ -524,13 +528,26 @@ def game_screen():
                         if b.body == b.stay5 or b.body == b.stay6:
                             b.body = b.stay6
                         col_check += 1
-                        b.health_count -= 0.3
+                        b.health_count -= 0.2
                         Miniexplosion(mini_booms).boom((j.rect.x, j.rect.y))
                         if is_sound:
                             play_sound('resources/sounds/explosion_sound.mp3', 0.1)
                         if is_sound:
                             play_sound('resources/sounds/collision_sound.mp3', 0.03)
                         j.kill()
+                for h in boss_bullets_count:
+                    collision = pygame.sprite.collide_rect(p, h)
+                    if collision:
+                        p.health_count -= 1
+                        Miniexplosion(mini_booms).boom((h.rect.x, h.rect.y))
+                        if p.health_count > 0:
+                            Damage(window_holes).taking_damage((random.randint(50, 550), random.randint(50, 750)))
+                            if is_sound:
+                                play_sound('resources/sounds/window_crashed.mp3', 0.1)
+                                play_sound('resources/sounds/explosion_stun.mp3', 0.01)
+                        if is_sound:
+                            play_sound('resources/sounds/collision_sound.mp3', 0.03)
+                        h.kill()
 
             if bs:
                 if battle_music:
@@ -550,6 +567,12 @@ def game_screen():
                 if b.body == b.stay7 and phase3_score:
                     game_score += 200
                     phase3_score = False
+
+                now = pygame.time.get_ticks()
+                if now - last_2 >= boss_cooldown and b.y > 0:
+                    last_2 = now
+                    play_sound('resources/sounds/boss_shot.mp3', 0.05)
+                    Bossbullets(boss_bullets_count).shot((b.x + 170, b.y + 155))
 
                 if col_check % 40 == 0:
                     b.change_sprite()
@@ -614,6 +637,9 @@ def game_screen():
         # передвижение пули
         bullets_count.update()
         bullets_count.draw(screen)
+
+        boss_bullets_count.update()
+        boss_bullets_count.draw(screen)
 
         small_booms.update()
         small_booms.draw(screen)

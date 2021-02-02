@@ -23,11 +23,34 @@ class Bullets(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = bullet_pos[0], bullet_pos[1]
 
     def update(self):
-        if self.rect.y < -100 or self.rect.y > 700:
+        if self.rect.y <= -10 or self.rect.y >= 750:
             self.kill()
 
-        if self.rect.y < 800:
+        if self.rect.y > -10:
             self.rect.y -= self.bullet_speed
+        else:
+            self.kill()
+
+
+class Bossbullets(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.add(group)
+        self.image = pygame.transform.scale(pygame.image.load('resources/sprites/boss_bullet.png'), (25, 35))
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = 0, 0
+        self.bullet_speed = 5
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def shot(self, bullet_pos):
+        self.rect.x, self.rect.y = bullet_pos[0], bullet_pos[1]
+
+    def update(self):
+        if self.rect.y < -10 or self.rect.y > 800:
+            self.kill()
+
+        if self.rect.y < 810:
+            self.rect.y += self.bullet_speed
         else:
             self.kill()
 
@@ -51,4 +74,3 @@ class Damage(pygame.sprite.Sprite):
             self.kill()
         elif self.time < 900:
             self.time += 1
-

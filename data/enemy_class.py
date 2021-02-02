@@ -103,26 +103,26 @@ class Boss(pygame.sprite.Sprite):
         if self.first_moove:
             if self.x + self.speed < 240:
                 self.xvel = self.speed
-            elif self.x + self.speed >= 240 and self.y + self.speed >= 500:
+            elif self.x + self.speed >= 240 and self.y + self.speed >= 600:
                 self.first_moove = False
                 self.second_moove = True
 
             if self.y + self.speed < 600:
                 self.yvel = self.speed
-            elif self.x + self.speed >= 240 and self.y + self.speed >= 500:
+            elif self.x + self.speed >= 240 and self.y + self.speed >= 600:
                 self.first_moove = False
                 self.second_moove = True
 
         if self.second_moove:
             if self.x + self.speed > 3:
                 self.xvel = -self.speed
-            elif self.x + self.speed <= 3 and self.y + self.speed <= 500:
+            elif self.x + self.speed <= 3 and self.y + self.speed <= 600:
                 self.second_moove = False
                 self.third_moove = True
 
-            if self.y > 500:
+            if self.y > 600:
                 self.yvel = self.speed
-            elif self.x + self.xvel <= 3 and self.y + self.yvel <= 500:
+            elif self.x + self.xvel <= 3 and self.y + self.yvel <= 600:
                 self.second_moove = False
                 self.third_moove = True
 
