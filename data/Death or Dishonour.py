@@ -176,6 +176,7 @@ def options_menu():
     global player_name, line_counter, is_sound
     running = True
     click = False
+    numlock = False
     while running:
         mx, my = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
@@ -216,6 +217,10 @@ def options_menu():
         if line_counter == 0 or player_name == 'NON':
             draw_text('ENTER', font, (255, 0, 0), screen, 280, 90)
             draw_text('NICKNAME', font, (255, 0, 0), screen, 280, 120)
+        if numlock:
+            draw_text('OFF', font, (255, 0, 0), screen, 500, 90)
+            draw_text('NUM', font, (255, 0, 0), screen, 500, 120)
+            draw_text('LOCK', font, (255, 0, 0), screen, 500, 150)
         # ------------------------------------------ collide
         if b_2_mask.collidepoint((mx, my)):
             pygame.draw.rect(screen, (255, 0, 100), (50, 185, 222, 105), 5)
@@ -237,6 +242,9 @@ def options_menu():
         # ------------------------------------------ events
         click = False
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     player_name = player_name[:-1]
@@ -256,6 +264,8 @@ def options_menu():
                     pass
                 elif event.key == pygame.K_RETURN:
                     pass
+                elif event.key == pygame.K_NUMLOCK:
+                    numlock = True
                 elif event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.mod == pygame.KMOD_NONE and event.key != pygame.K_TAB:
@@ -265,9 +275,6 @@ def options_menu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    click = True
         # ------------------------------------------ update
         pygame.display.update()
         clock.tick(10)
@@ -805,7 +812,7 @@ def pause_screen():
     running = True
     click = False
     while running:
-        screen.fill((200, 200, 200))
+        screen.fill((0, 0, 0))
         mx, my = pygame.mouse.get_pos()
 
         pygame.draw.rect(screen, (0, 0, 0), (175, 160, 240, 340))

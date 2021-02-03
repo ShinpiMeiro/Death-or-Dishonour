@@ -8,7 +8,6 @@ class Enemy(pygame.sprite.Sprite):
         self.add(group)
 
         check = random.randint(1, 20)
-        print(check)
         if check <= 6:
             self.stay1 = pygame.image.load('resources/sprites/enemy_2.png')
             self.health_count = 2
