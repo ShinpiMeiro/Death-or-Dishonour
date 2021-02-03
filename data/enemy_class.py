@@ -160,7 +160,7 @@ class Boss(pygame.sprite.Sprite):
             elif self.x > 97:
                 self.xvel = -self.speed
 
-            if self.y <1000:
+            if self.y < 1000:
                 self.yvel = self.speed
             else:
                 self.kill()

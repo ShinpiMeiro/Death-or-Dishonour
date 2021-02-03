@@ -424,7 +424,8 @@ def game_screen():
                 b = Boss()
             if event.type == pygame.USEREVENT and level_bckgd_pos < -8500:
                 Enemy(enemies)
-            if event.type == pygame.USEREVENT and death and pygame.time.get_ticks() - wait > 2000 or level_bckgd_pos > -801:
+            if event.type == pygame.USEREVENT and death and pygame.time.get_ticks()\
+                    - wait > 2000 or level_bckgd_pos > -801:
                 ingame_music.stop()
                 death_screen()
                 while True:
