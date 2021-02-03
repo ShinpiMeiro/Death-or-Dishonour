@@ -79,6 +79,8 @@ class Boss(pygame.sprite.Sprite):
         self.fourth_moove = False
         self.first_time = True
 
+        self.win = False
+
     def change_sprite(self):
         if self.health_count >= 45:
             self.body = self.stay1
@@ -93,64 +95,76 @@ class Boss(pygame.sprite.Sprite):
 
         self.yvel, self.xvel = 0, 0
 
-        if self.first_time:
-            if self.y + self.speed < 70:
-                self.yvel = self.speed
-            elif self.y + self.speed >= 70:
-                self.first_time = False
-                self.first_moove = True
+        if not self.win:
 
-        if self.first_moove:
-            if self.x + self.speed < 240:
+            if self.first_time:
+                if self.y + self.speed < 70:
+                    self.yvel = self.speed
+                elif self.y + self.speed >= 70:
+                    self.first_time = False
+                    self.first_moove = True
+
+            if self.first_moove:
+                if self.x + self.speed < 240:
+                    self.xvel = self.speed
+                elif self.x + self.speed >= 240 and self.y + self.speed >= 600:
+                    self.first_moove = False
+                    self.second_moove = True
+
+                if self.y + self.speed < 600:
+                    self.yvel = self.speed
+                elif self.x + self.speed >= 240 and self.y + self.speed >= 600:
+                    self.first_moove = False
+                    self.second_moove = True
+
+            if self.second_moove:
+                if self.x + self.speed > 3:
+                    self.xvel = -self.speed
+                elif self.x + self.speed <= 3 and self.y + self.speed <= 600:
+                    self.second_moove = False
+                    self.third_moove = True
+
+                if self.y > 600:
+                    self.yvel = self.speed
+                elif self.x + self.xvel <= 3 and self.y + self.yvel <= 600:
+                    self.second_moove = False
+                    self.third_moove = True
+
+            if self.third_moove:
+                if self.x + self.speed < 240:
+                    self.xvel = self.speed
+                elif self.x + self.speed >= 240 and self.y + self.speed >= 500:
+                    self.third_moove = False
+                    self.fourth_moove = True
+
+                if self.y - self.speed > 3:
+                    self.yvel = -self.speed
+                elif self.x + self.speed >= 240 and self.y + self.speed >= 3:
+                    self.third_moove = False
+                    self.fourth_moove = True
+
+            if self.fourth_moove:
+                if self.x > 3:
+                    self.xvel = -self.speed
+                elif self.x - self.speed <= 3 and self.y - self.speed <= 3:
+                    self.fourth_moove = False
+                    self.first_moove = True
+
+                if self.y > 3:
+                    self.yvel = -self.speed
+                elif self.x - self.speed <= 3 and self.y - self.speed <= 3:
+                    self.fourth_moove = False
+                    self.first_moove = True
+        else:
+            if self.x < 97:
                 self.xvel = self.speed
-            elif self.x + self.speed >= 240 and self.y + self.speed >= 600:
-                self.first_moove = False
-                self.second_moove = True
-
-            if self.y + self.speed < 600:
-                self.yvel = self.speed
-            elif self.x + self.speed >= 240 and self.y + self.speed >= 600:
-                self.first_moove = False
-                self.second_moove = True
-
-        if self.second_moove:
-            if self.x + self.speed > 3:
+            elif self.x > 97:
                 self.xvel = -self.speed
-            elif self.x + self.speed <= 3 and self.y + self.speed <= 600:
-                self.second_moove = False
-                self.third_moove = True
 
-            if self.y > 600:
+            if self.y <1000:
                 self.yvel = self.speed
-            elif self.x + self.xvel <= 3 and self.y + self.yvel <= 600:
-                self.second_moove = False
-                self.third_moove = True
-
-        if self.third_moove:
-            if self.x + self.speed < 240:
-                self.xvel = self.speed
-            elif self.x + self.speed >= 240 and self.y + self.speed >= 500:
-                self.third_moove = False
-                self.fourth_moove = True
-
-            if self.y - self.speed > 3:
-                self.yvel = -self.speed
-            elif self.x + self.speed >= 240 and self.y + self.speed >= 3:
-                self.third_moove = False
-                self.fourth_moove = True
-
-        if self.fourth_moove:
-            if self.x > 3:
-                self.xvel = -self.speed
-            elif self.x - self.speed <= 3 and self.y - self.speed <= 3:
-                self.fourth_moove = False
-                self.first_moove = True
-
-            if self.y > 3:
-                self.yvel = -self.speed
-            elif self.x - self.speed <= 3 and self.y - self.speed <= 3:
-                self.fourth_moove = False
-                self.first_moove = True
+            else:
+                self.kill()
 
         self.x += self.xvel
         self.y += self.yvel
